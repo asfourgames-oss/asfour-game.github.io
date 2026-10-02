@@ -15,52 +15,63 @@
         .header-logo svg { width: 28px; height: 28px; fill: var(--primary); }
         .header-search { flex-grow: 1; max-width: 400px; margin: 0 20px; position: relative; display: none; }
         @media (min-width: 768px) { .header-search { display: block; } }
-        .search-input { width: 100%; background: #f3f4f6; border: none; padding: 10px 15px 10px 40px; border-radius: 20px; font-size: 14px; outline: none; }
-        .search-icon { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); width: 16px; height: 16px; fill: var(--text-light); }
-        
+        .search-input { width: 100%; background: #f3f4f6; border: none; padding: 10px 40px 10px 15px; border-radius: 20px; font-size: 14px; outline: none; }
+        .search-icon { position: absolute; right: 15px; top: 50%; transform: translateY(-50%); width: 16px; height: 16px; fill: var(--text-light); pointer-events: none; }
+
         .header-actions { display: flex; align-items: center; gap: 12px; }
         .icon-btn { background: #f3f4f6; border: none; width: 36px; height: 36px; border-radius: 50%; display: flex; justify-content: center; align-items: center; cursor: pointer; position: relative; }
         .icon-btn svg { width: 18px; height: 18px; fill: var(--text-main); }
+        #mobileSearchBtn { display: flex; }
+        @media (min-width: 768px) { #mobileSearchBtn { display: none; } }
         .logged-in-dot { position: absolute; top: 0; right: 0; width: 10px; height: 10px; background-color: #10b981; border-radius: 50%; border: 2px solid white; display: none; }
 
-        main { margin-top: var(--header-height); padding: 15px; min-height: calc(100vh - var(--header-height)); padding-bottom: 50px; }
+        main { margin-top: var(--header-height); padding: 15px; min-height: calc(100vh - var(--header-height)); min-height: calc(100dvh - var(--header-height)); padding-bottom: 50px; }
+
+        /* شريط بحث الموبايل (منفصل تحت الهيدر) */
+        .mobile-search-bar { display: none; margin-bottom: 12px; position: relative; }
+        .mobile-search-bar.open { display: block; }
+        @media (min-width: 768px) { .mobile-search-bar, .mobile-search-bar.open { display: none; } }
+        .mobile-search-bar .search-input { background: #fff; box-shadow: var(--shadow-sm); padding: 12px 40px 12px 15px; }
+
         .categories-scroll { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 10px; margin-bottom: 15px; scrollbar-width: none; }
         .categories-scroll::-webkit-scrollbar { display: none; }
         .cat-pill { padding: 8px 16px; background: var(--header-bg); border-radius: 20px; font-size: 13px; font-weight: 600; white-space: nowrap; cursor: pointer; box-shadow: var(--shadow-sm); }
         .cat-pill.active { background: var(--primary); color: white; }
-        
+
         .games-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
-        @media (min-width: 480px) { .games-grid { grid-template-columns: repeat(3, 1fr); } } 
-        @media (min-width: 768px) { .games-grid { grid-template-columns: repeat(4, 1fr); gap: 15px; } } 
-        @media (min-width: 1024px) { .games-grid { grid-template-columns: repeat(6, 1fr); gap: 20px; } } 
+        @media (min-width: 480px) { .games-grid { grid-template-columns: repeat(3, 1fr); } }
+        @media (min-width: 768px) { .games-grid { grid-template-columns: repeat(4, 1fr); gap: 15px; } }
+        @media (min-width: 1024px) { .games-grid { grid-template-columns: repeat(6, 1fr); gap: 20px; } }
+        .grid-msg { text-align: center; grid-column: 1 / -1; color: gray; padding: 20px 0; }
 
         .game-card { display: flex; flex-direction: column; align-items: center; cursor: pointer; width: 100%; transition: var(--transition); }
         .game-card:hover .game-icon-wrapper { transform: translateY(-3px); }
-        .game-icon-wrapper { width: 100%; aspect-ratio: 1 / 1; border-radius: var(--card-radius); overflow: hidden; background: #e5e7eb; position: relative; box-shadow: var(--shadow-md); }
+        .game-icon-wrapper { width: 100%; aspect-ratio: 1 / 1; border-radius: var(--card-radius); overflow: hidden; background: #e5e7eb; position: relative; box-shadow: var(--shadow-md); transition: var(--transition); }
         .game-icon-img { width: 100%; height: 100%; object-fit: cover; display: block; }
         .game-title { margin-top: 8px; font-size: 12px; font-weight: 600; color: var(--text-main); text-align: center; width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-        #player-view { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100vh; background: var(--bg-color); z-index: 2000; overflow-y: auto; }
-        .player-nav { height: var(--header-height); background: #111827; display: flex; justify-content: space-between; align-items: center; padding: 0 15px; position: sticky; top: 0; z-index: 2001;}
+        #player-view { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100vh; height: 100dvh; background: var(--bg-color); z-index: 2000; overflow-y: auto; }
+        .player-nav { height: var(--header-height); background: #111827; display: flex; justify-content: space-between; align-items: center; padding: 0 15px; position: sticky; top: 0; z-index: 2001; }
         .player-back-btn { background: none; border: none; color: white; display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: bold; cursor: pointer; }
         .player-back-btn svg { width: 20px; height: 20px; fill: white; }
         .player-title { color: white; font-weight: bold; font-size: 16px; }
-        .iframe-wrapper { width: 100%; height: calc(100vh - var(--header-height)); background: #000; position: relative; }
+        .iframe-wrapper { width: 100%; height: calc(100vh - var(--header-height)); height: calc(100dvh - var(--header-height)); background: #000; position: relative; }
         .game-iframe { width: 100%; height: 100%; border: none; display: block; }
         .loading-screen { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #111827; display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 10; color: white; }
         .loader-spinner { width: 40px; height: 40px; border: 4px solid rgba(255,255,255,0.1); border-top-color: var(--primary); border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 15px; }
         @keyframes spin { to { transform: rotate(360deg); } }
 
-        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100vh; background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(4px); z-index: 3000; display: none; justify-content: center; align-items: center; opacity: 0; transition: opacity 0.3s; }
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100vh; height: 100dvh; background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(4px); z-index: 3000; display: none; justify-content: center; align-items: center; opacity: 0; transition: opacity 0.3s; }
         .modal-overlay.active { opacity: 1; }
-        .modal-box { background: var(--header-bg); width: 90%; max-width: 400px; border-radius: 24px; padding: 25px; position: relative; max-height: 90vh; overflow-y: auto; }
+        .modal-box { background: var(--header-bg); width: 90%; max-width: 400px; border-radius: 24px; padding: 25px; position: relative; max-height: 90vh; max-height: 90dvh; overflow-y: auto; }
         .close-modal { position: absolute; top: 15px; left: 15px; background: #f3f4f6; border: none; width: 32px; height: 32px; border-radius: 50%; font-size: 18px; cursor: pointer; color: var(--text-light); }
-        
-        .btn-google { width: 100%; background: white; color: var(--text-main); border: 1px solid #d1d5db; padding: 12px; border-radius: 12px; font-weight: bold; font-size: 14px; cursor: pointer; display: flex; justify-content: center; align-items: center; gap: 10px; margin-top: 20px;}
+
+        .btn-google { width: 100%; background: white; color: var(--text-main); border: 1px solid #d1d5db; padding: 12px; border-radius: 12px; font-weight: bold; font-size: 14px; cursor: pointer; display: flex; justify-content: center; align-items: center; gap: 10px; margin-top: 20px; }
         .btn-google svg { width: 20px; height: 20px; }
+        .auth-error { color: #ef4444; font-size: 13px; text-align: center; margin-top: 10px; min-height: 18px; }
 
         .profile-header { text-align: center; margin-bottom: 25px; margin-top: 15px; }
-        .profile-avatar { width: 80px; height: 80px; background: var(--primary); color: white; font-size: 32px; font-weight: bold; display: flex; justify-content: center; align-items: center; border-radius: 50%; margin: 0 auto 15px; overflow: hidden;}
+        .profile-avatar { width: 80px; height: 80px; background: var(--primary); color: white; font-size: 32px; font-weight: bold; display: flex; justify-content: center; align-items: center; border-radius: 50%; margin: 0 auto 15px; overflow: hidden; }
         .profile-avatar img { width: 100%; height: 100%; object-fit: cover; }
         .profile-name { font-size: 20px; font-weight: bold; color: var(--text-main); }
         .profile-email { font-size: 13px; color: var(--text-light); margin-top: 5px; }
@@ -87,16 +98,16 @@
 
     <div id="store-view">
         <header>
-            <a href="#" class="header-logo" onclick="location.reload()">
+            <a href="#" class="header-logo" id="logoLink">
                 <svg><use href="#icon-gamepad"></use></svg> Asfour
             </a>
             <div class="header-search">
                 <svg class="search-icon"><use href="#icon-search"></use></svg>
-                <input type="text" id="searchInput" class="search-input" placeholder="ابحث عن ألعاب..." onkeyup="handleSearch()">
+                <input type="text" id="searchInput" class="search-input" placeholder="ابحث عن ألعاب..." autocomplete="off">
             </div>
             <div class="header-actions">
-                <button class="icon-btn" id="mobileSearchBtn"><svg><use href="#icon-search"></use></svg></button>
-                <button class="icon-btn" onclick="openUserModal()">
+                <button class="icon-btn" id="mobileSearchBtn" aria-label="بحث"><svg><use href="#icon-search"></use></svg></button>
+                <button class="icon-btn" id="userBtn" aria-label="الحساب">
                     <svg><use href="#icon-user"></use></svg>
                     <div id="logged-in-dot" class="logged-in-dot"></div>
                 </button>
@@ -104,17 +115,21 @@
         </header>
 
         <main>
-            <div class="categories-scroll">
-                <div class="cat-pill active" onclick="filterCategory('all', this)">الكل</div>
-                <div class="cat-pill" onclick="filterCategory('action', this)">أكشن</div>
-                <div class="cat-pill" onclick="filterCategory('cars', this)">سيارات</div>
-                <div class="cat-pill" onclick="filterCategory('puzzle', this)">ذكاء وألغاز</div>
-                <div class="cat-pill" onclick="filterCategory('sports', this)">رياضة</div>
-                <div class="cat-pill" onclick="filterCategory('adventure', this)">مغامرات</div>
+            <div class="mobile-search-bar" id="mobileSearchBar">
+                <svg class="search-icon"><use href="#icon-search"></use></svg>
+                <input type="text" id="searchInputMobile" class="search-input" placeholder="ابحث عن ألعاب..." autocomplete="off">
+            </div>
+
+            <div class="categories-scroll" id="categories">
+                <div class="cat-pill active" data-cat="all">الكل</div>
+                <div class="cat-pill" data-cat="action">أكشن</div>
+                <div class="cat-pill" data-cat="cars">سيارات</div>
+                <div class="cat-pill" data-cat="puzzle">ذكاء وألغاز</div>
+                <div class="cat-pill" data-cat="sports">رياضة</div>
+                <div class="cat-pill" data-cat="adventure">مغامرات</div>
             </div>
             <div class="games-grid" id="main-grid">
-                <!-- الألعاب هتظهر هنا من السيرفر -->
-                <p style="text-align:center; grid-column:1/-1; color:gray;">جاري تحميل الألعاب...</p>
+                <p class="grid-msg">جاري تحميل الألعاب...</p>
             </div>
         </main>
     </div>
@@ -122,7 +137,7 @@
     <!-- شاشة اللعب -->
     <div id="player-view">
         <div class="player-nav">
-            <button class="player-back-btn" onclick="closePlayer()">
+            <button class="player-back-btn" id="exitGameBtn">
                 <svg><use href="#icon-back"></use></svg> خروج من اللعبة
             </button>
             <div class="player-title" id="playerTitle">اسم اللعبة</div>
@@ -133,21 +148,24 @@
                 <div class="loader-spinner"></div>
                 <div>جاري التجهيز...</div>
             </div>
-            <iframe id="gameIframe" class="game-iframe" allowfullscreen></iframe>
+            <iframe id="gameIframe" class="game-iframe" allowfullscreen
+                allow="fullscreen; autoplay; gamepad"
+                sandbox="allow-scripts allow-same-origin allow-pointer-lock allow-popups allow-forms"></iframe>
         </div>
     </div>
 
     <!-- شاشة الحساب -->
     <div class="modal-overlay" id="userModalOverlay">
         <div class="modal-box">
-            <button class="close-modal" onclick="closeUserModal()">✕</button>
-            
+            <button class="close-modal" id="closeModalBtn" aria-label="إغلاق">✕</button>
+
             <div id="auth-section">
                 <h3 style="text-align:center; margin-bottom:10px;">تسجيل الدخول للمنصة</h3>
                 <p style="text-align:center; font-size:14px; color:var(--text-light);">سجل لحفظ تقدمك وجمع النقاط!</p>
                 <button class="btn-google" id="googleLoginBtn">
                     <svg><use href="#icon-google"></use></svg> المتابعة باستخدام Google
                 </button>
+                <div class="auth-error" id="authError"></div>
             </div>
 
             <div id="profile-section">
@@ -176,8 +194,8 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-app.js";
-        import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-auth.js";
-        import { getFirestore, doc, getDoc, setDoc, updateDoc, increment, collection, onSnapshot } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-firestore.js";
+        import { getAuth, signInWithPopup, signInWithRedirect, getRedirectResult, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-auth.js";
+        import { getFirestore, doc, getDoc, setDoc, updateDoc, increment, serverTimestamp, collection, onSnapshot } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyBNlJ-hiRIPKD4apbRbt331MSi5t0o2XGU",
@@ -193,141 +211,286 @@
         const db = getFirestore(app);
         const provider = new GoogleAuthProvider();
 
-        let currentUserData = null;
-        let playInterval;
-        let globalGamesDB = [];
+        const $ = (id) => document.getElementById(id);
 
-        // 1. جلب الألعاب من السيرفر
+        // ---------- الحالة ----------
+        let currentUserData = null;      // مستخدم Firebase
+        let stats = { gamesPlayed: 0, playMinutes: 0, points: 0 };
+        let globalGamesDB = [];
+        let currentCat = 'all';
+        let searchQuery = '';
+        let playInterval = null;
+        let playerOpen = false;
+        let loadTimeout = null;
+        const countedGames = new Set();  // الألعاب اللي اتحسبت في الجلسة دي
+
+        // ---------- أدوات أمان ----------
+        // يسمح فقط بروابط http/https (يمنع javascript: وغيره)
+        function safeUrl(u) {
+            try {
+                const parsed = new URL(u, location.href);
+                return (parsed.protocol === 'https:' || parsed.protocol === 'http:') ? parsed.href : '';
+            } catch (e) { return ''; }
+        }
+
+        // ---------- 1. جلب الألعاب ----------
         onSnapshot(collection(db, "games"), (snapshot) => {
             globalGamesDB = [];
             snapshot.forEach((docSnap) => {
-                let game = docSnap.data();
+                const game = docSnap.data();
                 game.id = docSnap.id;
                 globalGamesDB.push(game);
             });
-            renderGamesGrid(globalGamesDB, 'main-grid');
+            applyFilters();
+        }, (err) => {
+            console.error(err);
+            showGridMessage("تعذر تحميل الألعاب. تأكد من الاتصال وحاول مرة تانية.");
         });
 
-        // 2. الحسابات
-        document.getElementById('googleLoginBtn').addEventListener('click', () => { signInWithPopup(auth, provider).catch(e => alert("خطأ في التسجيل.")); });
-        document.getElementById('logoutBtn').addEventListener('click', () => { signOut(auth); });
+        function showGridMessage(text) {
+            const grid = $('main-grid');
+            grid.textContent = '';
+            const p = document.createElement('p');
+            p.className = 'grid-msg';
+            p.textContent = text;
+            grid.appendChild(p);
+        }
+
+        // ---------- 2. الفلترة (بحث + تصنيف مع بعض) ----------
+        function applyFilters() {
+            const q = searchQuery.trim().toLowerCase();
+            const list = globalGamesDB.filter(g => {
+                const catOk = currentCat === 'all' || g.category === currentCat;
+                const searchOk = !q || String(g.title || '').toLowerCase().includes(q);
+                return catOk && searchOk;
+            });
+            renderGamesGrid(list);
+        }
+
+        function renderGamesGrid(gamesList) {
+            const container = $('main-grid');
+            container.textContent = '';
+            if (gamesList.length === 0) { showGridMessage("لا توجد ألعاب حالياً."); return; }
+
+            gamesList.forEach(game => {
+                const card = document.createElement('div');
+                card.className = 'game-card';
+                card.addEventListener('click', () => openPlayer(game.id, game.title, game.url));
+
+                const wrap = document.createElement('div');
+                wrap.className = 'game-icon-wrapper';
+                const img = document.createElement('img');
+                img.className = 'game-icon-img';
+                img.src = safeUrl(game.img);
+                img.alt = game.title || '';
+                img.loading = 'lazy';
+                wrap.appendChild(img);
+
+                const title = document.createElement('div');
+                title.className = 'game-title';
+                title.textContent = game.title || '';
+
+                card.append(wrap, title);
+                container.appendChild(card);
+            });
+        }
+
+        $('categories').addEventListener('click', (e) => {
+            const pill = e.target.closest('.cat-pill');
+            if (!pill) return;
+            document.querySelectorAll('.cat-pill').forEach(b => b.classList.remove('active'));
+            pill.classList.add('active');
+            currentCat = pill.dataset.cat;
+            applyFilters();
+        });
+
+        function onSearchInput(e) {
+            searchQuery = e.target.value;
+            // نزامن الخانتين
+            if (e.target.id === 'searchInput') $('searchInputMobile').value = searchQuery;
+            else $('searchInput').value = searchQuery;
+            applyFilters();
+        }
+        $('searchInput').addEventListener('input', onSearchInput);
+        $('searchInputMobile').addEventListener('input', onSearchInput);
+
+        $('mobileSearchBtn').addEventListener('click', () => {
+            const bar = $('mobileSearchBar');
+            bar.classList.toggle('open');
+            if (bar.classList.contains('open')) $('searchInputMobile').focus();
+        });
+
+        $('logoLink').addEventListener('click', (e) => { e.preventDefault(); location.reload(); });
+
+        // ---------- 3. الحسابات ----------
+        function setAuthError(msg) { $('authError').textContent = msg || ''; }
+
+        $('googleLoginBtn').addEventListener('click', async () => {
+            setAuthError('');
+            try {
+                await signInWithPopup(auth, provider);
+            } catch (e) {
+                const fallbackCodes = ['auth/popup-blocked', 'auth/operation-not-supported-in-this-environment', 'auth/web-storage-unsupported'];
+                if (fallbackCodes.includes(e.code)) {
+                    try { await signInWithRedirect(auth, provider); }
+                    catch (e2) { setAuthError("تعذر تسجيل الدخول. جرّب تفتح الموقع من متصفح عادي."); }
+                } else if (e.code !== 'auth/popup-closed-by-user' && e.code !== 'auth/cancelled-popup-request') {
+                    setAuthError("خطأ في التسجيل. حاول مرة تانية.");
+                }
+            }
+        });
+
+        // نتيجة الرجوع من signInWithRedirect
+        getRedirectResult(auth).catch(() => setAuthError("تعذر إكمال تسجيل الدخول."));
+
+        $('logoutBtn').addEventListener('click', () => { signOut(auth); });
 
         onAuthStateChanged(auth, async (user) => {
             if (user) {
                 currentUserData = user;
-                document.getElementById('auth-section').style.display = 'none';
-                document.getElementById('profile-section').style.display = 'block';
-                document.getElementById('logged-in-dot').style.display = 'block';
-                document.getElementById('user-display-name').innerText = user.displayName;
-                document.getElementById('user-display-email').innerText = user.email;
-                
-                if(user.photoURL) document.getElementById('user-avatar-letter').innerHTML = `<img src="${user.photoURL}">`;
-                else document.getElementById('user-avatar-letter').innerText = user.displayName.charAt(0);
+                const name = user.displayName || 'لاعب';
+                $('auth-section').style.display = 'none';
+                $('profile-section').style.display = 'block';
+                $('logged-in-dot').style.display = 'block';
+                $('user-display-name').textContent = name;
+                $('user-display-email').textContent = user.email || '';
 
-                const userDocRef = doc(db, "users", user.uid);
-                const docSnap = await getDoc(userDocRef);
-                if (docSnap.exists()) {
-                    updateStatsUI(docSnap.data());
+                const avatar = $('user-avatar-letter');
+                avatar.textContent = '';
+                const photo = safeUrl(user.photoURL);
+                if (photo) {
+                    const im = document.createElement('img');
+                    im.src = photo;
+                    im.alt = name;
+                    avatar.appendChild(im);
                 } else {
-                    const initialData = { displayName: user.displayName, email: user.email, gamesPlayed: 0, playMinutes: 0, points: 50 }; 
-                    await setDoc(userDocRef, initialData);
-                    updateStatsUI(initialData);
+                    avatar.textContent = name.charAt(0);
                 }
+
+                try {
+                    const userDocRef = doc(db, "users", user.uid);
+                    const docSnap = await getDoc(userDocRef);
+                    if (docSnap.exists()) {
+                        stats = { gamesPlayed: 0, playMinutes: 0, points: 0, ...docSnap.data() };
+                    } else {
+                        const initialData = { displayName: name, email: user.email || '', gamesPlayed: 0, playMinutes: 0, points: 50 };
+                        await setDoc(userDocRef, initialData);
+                        stats = initialData;
+                    }
+                } catch (e) { console.error(e); }
+                updateStatsUI();
+
+                // لو اللاعب سجل دخول وهو جوه لعبة، ابدأ العداد
+                if (playerOpen) startTimer();
             } else {
+                stopTimer(); // وقف العداد عند تسجيل الخروج
                 currentUserData = null;
-                document.getElementById('auth-section').style.display = 'block';
-                document.getElementById('profile-section').style.display = 'none';
-                document.getElementById('logged-in-dot').style.display = 'none';
-                updateStatsUI({gamesPlayed: 0, playMinutes: 0, points: 0});
+                stats = { gamesPlayed: 0, playMinutes: 0, points: 0 };
+                countedGames.clear();
+                $('auth-section').style.display = 'block';
+                $('profile-section').style.display = 'none';
+                $('logged-in-dot').style.display = 'none';
+                updateStatsUI();
             }
         });
 
-        function updateStatsUI(data) {
-            document.getElementById('stat-games').innerText = data.gamesPlayed || 0;
-            document.getElementById('stat-mins').innerText = data.playMinutes || 0;
-            document.getElementById('stat-points').innerText = data.points || 0;
+        function updateStatsUI() {
+            $('stat-games').textContent = stats.gamesPlayed || 0;
+            $('stat-mins').textContent = stats.playMinutes || 0;
+            $('stat-points').textContent = stats.points || 0;
         }
 
-        // 3. واجهة الموقع
-        window.openUserModal = function() {
-            const overlay = document.getElementById('userModalOverlay');
+        // ---------- 4. نافذة الحساب ----------
+        function openUserModal() {
+            const overlay = $('userModalOverlay');
             overlay.style.display = 'flex';
             document.body.classList.add('no-scroll');
             setTimeout(() => { overlay.classList.add('active'); }, 10);
         }
-        window.closeUserModal = function() {
-            const overlay = document.getElementById('userModalOverlay');
+        function closeUserModal() {
+            const overlay = $('userModalOverlay');
             overlay.classList.remove('active');
-            setTimeout(() => { 
-                overlay.style.display = 'none'; 
-                if(document.getElementById('player-view').style.display !== 'block') document.body.classList.remove('no-scroll');
+            setTimeout(() => {
+                overlay.style.display = 'none';
+                if (!playerOpen) document.body.classList.remove('no-scroll');
             }, 300);
         }
+        $('userBtn').addEventListener('click', openUserModal);
+        $('closeModalBtn').addEventListener('click', closeUserModal);
+        $('userModalOverlay').addEventListener('click', (e) => { if (e.target.id === 'userModalOverlay') closeUserModal(); });
 
-        function renderGamesGrid(gamesList, containerId) {
-            const container = document.getElementById(containerId); container.innerHTML = ""; 
-            if(gamesList.length === 0) { container.innerHTML = "<p style='color:gray; grid-column:1/-1; text-align:center;'>لا توجد ألعاب حالياً.</p>"; return; }
-            let html = "";
-            gamesList.forEach(game => {
-                html += `<div class="game-card" onclick="openPlayer('${game.id}', '${game.title}', '${game.url}')">
-                    <div class="game-icon-wrapper"><img src="${game.img}" class="game-icon-img" loading="lazy"></div>
-                    <div class="game-title">${game.title}</div>
-                </div>`;
-            });
-            container.innerHTML = html;
+        // ---------- 5. نظام اللعب والنقاط (10 نقط كل دقيقة) ----------
+        function startTimer() {
+            stopTimer();
+            if (!currentUserData || !playerOpen || document.hidden) return;
+            const userDocRef = doc(db, "users", currentUserData.uid);
+            playInterval = setInterval(async () => {
+                if (document.hidden) return; // ما تحسبش والتاب في الخلفية
+                try {
+                    await updateDoc(userDocRef, {
+                        playMinutes: increment(1),
+                        points: increment(10),
+                        lastTick: serverTimestamp()
+                    });
+                    stats.playMinutes = (stats.playMinutes || 0) + 1;
+                    stats.points = (stats.points || 0) + 10;
+                    updateStatsUI();
+                } catch (e) { console.error("tick rejected", e); }
+            }, 60000);
         }
 
-        window.filterCategory = function(cat, btn) {
-            document.querySelectorAll('.cat-pill').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-            if(cat === 'all') renderGamesGrid(globalGamesDB, 'main-grid');
-            else renderGamesGrid(globalGamesDB.filter(g => g.category === cat), 'main-grid');
-        }
-        window.handleSearch = function() {
-            const query = document.getElementById('searchInput').value.toLowerCase();
-            renderGamesGrid(globalGamesDB.filter(g => g.title.toLowerCase().includes(query)), 'main-grid');
+        function stopTimer() {
+            if (playInterval) { clearInterval(playInterval); playInterval = null; }
         }
 
-        // 4. نظام اللعب والنقاط (10 نقط كل دقيقة)
-        window.openPlayer = async function(id, title, url) {
+        // وقف/استئناف العداد حسب ظهور الصفحة
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden) stopTimer();
+            else if (playerOpen) startTimer();
+        });
+
+        async function openPlayer(id, title, url) {
+            const gameUrl = safeUrl(url);
+            if (!gameUrl) { alert("رابط اللعبة غير صالح."); return; }
+
+            playerOpen = true;
             document.body.classList.add('no-scroll');
-            document.getElementById('store-view').style.display = 'none';
-            document.getElementById('player-view').style.display = 'block';
-            document.getElementById('playerTitle').innerText = title;
-            document.getElementById('gameIframe').src = ""; 
-            document.getElementById('loadingScreen').style.display = 'flex'; 
+            $('store-view').style.display = 'none';
+            $('player-view').style.display = 'block';
+            $('playerTitle').textContent = title || '';
+            $('gameIframe').src = "about:blank";
+            $('loadingScreen').style.display = 'flex';
 
-            setTimeout(() => {
-                document.getElementById('gameIframe').src = url;
-                document.getElementById('loadingScreen').style.display = 'none';
+            clearTimeout(loadTimeout);
+            loadTimeout = setTimeout(() => {
+                if (!playerOpen) return;
+                $('gameIframe').src = gameUrl;
+                $('loadingScreen').style.display = 'none';
             }, 1000);
 
-            if(currentUserData) {
-                const userDocRef = doc(db, "users", currentUserData.uid);
-                await updateDoc(userDocRef, { gamesPlayed: increment(1) });
-                
-                // العداد بيحسب 10 نقط كل دقيقة
-                playInterval = setInterval(async () => { 
-                    await updateDoc(userDocRef, { playMinutes: increment(1), points: increment(10) });
-                    const docSnap = await getDoc(userDocRef);
-                    if(docSnap.exists()) updateStatsUI(docSnap.data());
-                }, 60000); 
+            startTimer();
+
+            // يزوّد عدد الألعاب مرة واحدة لكل لعبة في الجلسة
+            if (currentUserData && !countedGames.has(id)) {
+                countedGames.add(id);
+                try {
+                    await updateDoc(doc(db, "users", currentUserData.uid), { gamesPlayed: increment(1) });
+                    stats.gamesPlayed = (stats.gamesPlayed || 0) + 1;
+                    updateStatsUI();
+                } catch (e) { console.error(e); }
             }
         }
 
-        window.closePlayer = function() {
+        function closePlayer() {
+            playerOpen = false;
+            stopTimer();
+            clearTimeout(loadTimeout);
             document.body.classList.remove('no-scroll');
-            document.getElementById('gameIframe').src = ""; 
-            document.getElementById('player-view').style.display = 'none';
-            document.getElementById('store-view').style.display = 'block';
-            if(playInterval) clearInterval(playInterval); // توقيف العداد 
+            $('gameIframe').src = "about:blank";
+            $('player-view').style.display = 'none';
+            $('store-view').style.display = 'block';
         }
-
-        document.getElementById('mobileSearchBtn').addEventListener('click', () => {
-            const searchBar = document.querySelector('.header-search');
-            searchBar.style.display = searchBar.style.display === 'block' ? 'none' : 'block';
-            if(searchBar.style.display === 'block') document.getElementById('searchInput').focus();
-        });
+        $('exitGameBtn').addEventListener('click', closePlayer);
     </script>
 </body>
 </html>
