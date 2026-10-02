@@ -5,56 +5,28 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Asfour Games | عصفور جيمز</title>
     <style>
-        /* ==========================================================================
-           1. المتغيرات والأساسيات (Poki Style) - لم يتم تغيير أي شيء في التصميم
-           ========================================================================== */
-        :root {
-            --bg-color: #f3f4f6;
-            --header-bg: #ffffff;
-            --text-main: #1f2937;
-            --text-light: #6b7280;
-            --primary: #3b82f6;
-            --card-radius: 16px;
-            --header-height: 60px;
-            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-            --shadow-hover: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-            --transition: all 0.2s ease-in-out;
-        }
-
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; -webkit-tap-highlight-color: transparent; }
-        html, body { 
-            width: 100%; overflow-x: hidden; background-color: var(--bg-color); color: var(--text-main); scroll-behavior: smooth;
-        }
+        :root { --bg-color: #f3f4f6; --header-bg: #ffffff; --text-main: #1f2937; --text-light: #6b7280; --primary: #3b82f6; --card-radius: 16px; --header-height: 60px; --shadow-sm: 0 1px 2px 0 rgba(0,0,0,0.05); --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1); --transition: all 0.2s ease-in-out; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; -webkit-tap-highlight-color: transparent; }
+        html, body { width: 100%; overflow-x: hidden; background-color: var(--bg-color); color: var(--text-main); }
         body.no-scroll { overflow: hidden !important; }
 
-        header {
-            position: fixed; top: 0; left: 0; width: 100%; height: var(--header-height);
-            background: var(--header-bg); display: flex; justify-content: space-between; align-items: center;
-            padding: 0 15px; z-index: 1000; box-shadow: var(--shadow-sm);
-        }
-        .header-logo { display: flex; align-items: center; gap: 8px; font-size: 20px; font-weight: 900; color: var(--text-main); text-decoration: none; letter-spacing: -0.5px;}
+        header { position: fixed; top: 0; left: 0; width: 100%; height: var(--header-height); background: var(--header-bg); display: flex; justify-content: space-between; align-items: center; padding: 0 15px; z-index: 1000; box-shadow: var(--shadow-sm); }
+        .header-logo { display: flex; align-items: center; gap: 8px; font-size: 20px; font-weight: 900; color: var(--text-main); text-decoration: none; }
         .header-logo svg { width: 28px; height: 28px; fill: var(--primary); }
-        
         .header-search { flex-grow: 1; max-width: 400px; margin: 0 20px; position: relative; display: none; }
         @media (min-width: 768px) { .header-search { display: block; } }
-        .search-input { width: 100%; background: #f3f4f6; border: none; padding: 10px 15px 10px 40px; border-radius: 20px; font-size: 14px; outline: none; transition: var(--transition); }
-        .search-input:focus { background: #e5e7eb; box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3); }
+        .search-input { width: 100%; background: #f3f4f6; border: none; padding: 10px 15px 10px 40px; border-radius: 20px; font-size: 14px; outline: none; }
         .search-icon { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); width: 16px; height: 16px; fill: var(--text-light); }
-
-        .header-actions { display: flex; align-items: center; gap: 12px; }
-        .icon-btn { background: none; border: none; width: 36px; height: 36px; border-radius: 50%; display: flex; justify-content: center; align-items: center; cursor: pointer; background: #f3f4f6; transition: var(--transition); position: relative;}
-        .icon-btn:hover { background: #e5e7eb; }
-        .icon-btn svg { width: 18px; height: 18px; fill: var(--text-main); }
         
-        /* علامة صغيرة (نقطة خضراء) تظهر على الأيقونة لو مسجل دخول */
+        .header-actions { display: flex; align-items: center; gap: 12px; }
+        .icon-btn { background: #f3f4f6; border: none; width: 36px; height: 36px; border-radius: 50%; display: flex; justify-content: center; align-items: center; cursor: pointer; position: relative; }
+        .icon-btn svg { width: 18px; height: 18px; fill: var(--text-main); }
         .logged-in-dot { position: absolute; top: 0; right: 0; width: 10px; height: 10px; background-color: #10b981; border-radius: 50%; border: 2px solid white; display: none; }
 
         main { margin-top: var(--header-height); padding: 15px; min-height: calc(100vh - var(--header-height)); padding-bottom: 50px; }
-        
         .categories-scroll { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 10px; margin-bottom: 15px; scrollbar-width: none; }
         .categories-scroll::-webkit-scrollbar { display: none; }
-        .cat-pill { padding: 8px 16px; background: var(--header-bg); border-radius: 20px; font-size: 13px; font-weight: 600; white-space: nowrap; cursor: pointer; box-shadow: var(--shadow-sm); border: 1px solid transparent; transition: var(--transition); display: flex; align-items: center; gap: 6px; }
+        .cat-pill { padding: 8px 16px; background: var(--header-bg); border-radius: 20px; font-size: 13px; font-weight: 600; white-space: nowrap; cursor: pointer; box-shadow: var(--shadow-sm); }
         .cat-pill.active { background: var(--primary); color: white; }
         
         .games-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
@@ -62,79 +34,33 @@
         @media (min-width: 768px) { .games-grid { grid-template-columns: repeat(4, 1fr); gap: 15px; } } 
         @media (min-width: 1024px) { .games-grid { grid-template-columns: repeat(6, 1fr); gap: 20px; } } 
 
-        .game-card { display: flex; flex-direction: column; align-items: center; cursor: pointer; text-decoration: none; width: 100%; transition: var(--transition); }
-        .game-card:hover .game-icon-wrapper { transform: translateY(-3px); box-shadow: var(--shadow-hover); }
-        
-        .game-icon-wrapper { width: 100%; aspect-ratio: 1 / 1; border-radius: var(--card-radius); overflow: hidden; background: #e5e7eb; position: relative; box-shadow: var(--shadow-md); transition: var(--transition); }
+        .game-card { display: flex; flex-direction: column; align-items: center; cursor: pointer; width: 100%; transition: var(--transition); }
+        .game-card:hover .game-icon-wrapper { transform: translateY(-3px); }
+        .game-icon-wrapper { width: 100%; aspect-ratio: 1 / 1; border-radius: var(--card-radius); overflow: hidden; background: #e5e7eb; position: relative; box-shadow: var(--shadow-md); }
         .game-icon-img { width: 100%; height: 100%; object-fit: cover; display: block; }
-        .game-badge { position: absolute; top: 6px; right: 6px; background: #ef4444; color: white; font-size: 10px; font-weight: bold; padding: 2px 6px; border-radius: 6px; z-index: 2; }
-        .game-title { margin-top: 8px; font-size: 12px; font-weight: 600; color: var(--text-main); text-align: center; width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding: 0 4px; }
+        .game-title { margin-top: 8px; font-size: 12px; font-weight: 600; color: var(--text-main); text-align: center; width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-        #player-view { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100vh; background: var(--bg-color); z-index: 2000; overflow-y: auto; overflow-x: hidden; }
-        
+        #player-view { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100vh; background: var(--bg-color); z-index: 2000; overflow-y: auto; }
         .player-nav { height: var(--header-height); background: #111827; display: flex; justify-content: space-between; align-items: center; padding: 0 15px; position: sticky; top: 0; z-index: 2001;}
         .player-back-btn { background: none; border: none; color: white; display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: bold; cursor: pointer; }
         .player-back-btn svg { width: 20px; height: 20px; fill: white; }
-        .player-title { color: white; font-weight: bold; font-size: 16px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 50%; }
-        .player-actions { display: flex; gap: 10px; }
-        .player-action-btn { background: rgba(255,255,255,0.1); border: none; width: 36px; height: 36px; border-radius: 8px; display: flex; justify-content: center; align-items: center; cursor: pointer; transition: 0.2s; }
-        .player-action-btn:hover { background: rgba(255,255,255,0.2); }
-        .player-action-btn svg { width: 18px; height: 18px; fill: white; }
-
-        .iframe-wrapper { width: 100%; height: calc(100vh - var(--header-height) - 100px); background: #000; position: relative; }
-        @media (max-width: 768px) { .iframe-wrapper { height: calc(100vh - var(--header-height) - 150px); } }
+        .player-title { color: white; font-weight: bold; font-size: 16px; }
+        .iframe-wrapper { width: 100%; height: calc(100vh - var(--header-height)); background: #000; position: relative; }
         .game-iframe { width: 100%; height: 100%; border: none; display: block; }
-        
         .loading-screen { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #111827; display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 10; color: white; }
         .loader-spinner { width: 40px; height: 40px; border: 4px solid rgba(255,255,255,0.1); border-top-color: var(--primary); border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 15px; }
         @keyframes spin { to { transform: rotate(360deg); } }
 
-        .related-games { padding: 15px; background: var(--header-bg); border-top: 1px solid #e5e7eb; min-height: 200px;}
-        .related-title { font-size: 14px; font-weight: bold; margin-bottom: 10px; color: var(--text-light); text-transform: uppercase; }
-
-        .modal-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100vh;
-            background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(4px);
-            z-index: 3000; display: none; justify-content: center; align-items: center;
-            opacity: 0; transition: opacity 0.3s;
-        }
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100vh; background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(4px); z-index: 3000; display: none; justify-content: center; align-items: center; opacity: 0; transition: opacity 0.3s; }
         .modal-overlay.active { opacity: 1; }
+        .modal-box { background: var(--header-bg); width: 90%; max-width: 400px; border-radius: 24px; padding: 25px; position: relative; max-height: 90vh; overflow-y: auto; }
+        .close-modal { position: absolute; top: 15px; left: 15px; background: #f3f4f6; border: none; width: 32px; height: 32px; border-radius: 50%; font-size: 18px; cursor: pointer; color: var(--text-light); }
         
-        .modal-box {
-            background: var(--header-bg); width: 90%; max-width: 400px;
-            border-radius: 24px; padding: 25px; position: relative;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-            transform: translateY(20px); transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            max-height: 90vh; overflow-y: auto;
-        }
-        .modal-overlay.active .modal-box { transform: translateY(0); }
-        
-        .close-modal { position: absolute; top: 15px; left: 15px; background: #f3f4f6; border: none; width: 32px; height: 32px; border-radius: 50%; font-size: 18px; cursor: pointer; color: var(--text-light); display: flex; justify-content: center; align-items: center; }
-        .close-modal:hover { background: #e5e7eb; color: var(--text-main); }
-
-        .auth-tabs { display: flex; gap: 10px; margin-bottom: 25px; border-bottom: 2px solid #e5e7eb; padding-bottom: 10px; margin-top: 10px;}
-        .auth-tab { flex: 1; text-align: center; font-weight: bold; color: var(--text-light); cursor: pointer; padding: 10px 0; position: relative; transition: 0.3s; }
-        .auth-tab.active { color: var(--primary); }
-        .auth-tab.active::after { content: ''; position: absolute; bottom: -12px; left: 0; width: 100%; height: 3px; background: var(--primary); border-radius: 3px 3px 0 0; }
-
-        .form-group { margin-bottom: 15px; }
-        .form-input { width: 100%; background: #f3f4f6; border: 1px solid transparent; padding: 14px 15px; border-radius: 12px; font-size: 14px; outline: none; transition: 0.2s; color: var(--text-main);}
-        .form-input:focus { border-color: var(--primary); background: #fff; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1); }
-        
-        .btn-main { width: 100%; background: var(--primary); color: white; border: none; padding: 14px; border-radius: 12px; font-weight: bold; font-size: 15px; cursor: pointer; transition: 0.2s; margin-top: 10px; }
-        .btn-main:hover { background: var(--primary-hover); transform: translateY(-1px); }
-        
-        .divider { display: flex; align-items: center; text-align: center; margin: 20px 0; color: var(--text-light); font-size: 13px; }
-        .divider::before, .divider::after { content: ''; flex: 1; border-bottom: 1px solid #e5e7eb; }
-        .divider:not(:empty)::before { margin-left: 10px; }
-        .divider:not(:empty)::after { margin-right: 10px; }
-
-        .btn-google { width: 100%; background: white; color: var(--text-main); border: 1px solid #d1d5db; padding: 12px; border-radius: 12px; font-weight: bold; font-size: 14px; cursor: pointer; display: flex; justify-content: center; align-items: center; gap: 10px; transition: 0.2s; }
-        .btn-google:hover { background: #f9fafb; border-color: #9ca3af; }
+        .btn-google { width: 100%; background: white; color: var(--text-main); border: 1px solid #d1d5db; padding: 12px; border-radius: 12px; font-weight: bold; font-size: 14px; cursor: pointer; display: flex; justify-content: center; align-items: center; gap: 10px; margin-top: 20px;}
         .btn-google svg { width: 20px; height: 20px; }
 
         .profile-header { text-align: center; margin-bottom: 25px; margin-top: 15px; }
-        .profile-avatar { width: 80px; height: 80px; background: var(--primary); color: white; font-size: 32px; font-weight: bold; display: flex; justify-content: center; align-items: center; border-radius: 50%; margin: 0 auto 15px; box-shadow: 0 10px 15px -3px rgba(59,130,246,0.3); overflow: hidden; }
+        .profile-avatar { width: 80px; height: 80px; background: var(--primary); color: white; font-size: 32px; font-weight: bold; display: flex; justify-content: center; align-items: center; border-radius: 50%; margin: 0 auto 15px; overflow: hidden;}
         .profile-avatar img { width: 100%; height: 100%; object-fit: cover; }
         .profile-name { font-size: 20px; font-weight: bold; color: var(--text-main); }
         .profile-email { font-size: 13px; color: var(--text-light); margin-top: 5px; }
@@ -143,16 +69,10 @@
         .stat-card { background: #f3f4f6; padding: 15px; border-radius: 16px; text-align: center; border: 1px solid #e5e7eb; }
         .stat-val { font-size: 24px; font-weight: 900; color: var(--primary); margin-bottom: 5px; }
         .stat-label { font-size: 12px; font-weight: bold; color: var(--text-light); }
-
-        .points-card { background: linear-gradient(135deg, #f59e0b, #d97706); color: white; padding: 15px; border-radius: 16px; text-align: center; margin-bottom: 25px; box-shadow: 0 10px 15px -3px rgba(245,158,11,0.3); }
-        .points-val { font-size: 20px; font-weight: bold; display: flex; justify-content: center; align-items: center; gap: 8px; }
-        .points-val svg { width: 22px; height: 22px; fill: white; }
-        .points-label { font-size: 12px; margin-top: 5px; opacity: 0.9; }
-
-        .btn-logout { width: 100%; background: transparent; color: #ef4444; border: 1px solid #fca5a5; padding: 12px; border-radius: 12px; font-weight: bold; font-size: 14px; cursor: pointer; transition: 0.2s; }
-        .btn-logout:hover { background: #fef2f2; }
-
-        #signup-form, #profile-section { display: none; }
+        .points-card { background: linear-gradient(135deg, #f59e0b, #d97706); color: white; padding: 15px; border-radius: 16px; text-align: center; margin-bottom: 25px; }
+        .points-val { font-size: 20px; font-weight: bold; }
+        .btn-logout { width: 100%; background: transparent; color: #ef4444; border: 1px solid #fca5a5; padding: 12px; border-radius: 12px; font-weight: bold; font-size: 14px; cursor: pointer; }
+        #profile-section { display: none; }
     </style>
 </head>
 <body>
@@ -162,29 +82,23 @@
         <symbol id="icon-search" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></symbol>
         <symbol id="icon-user" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/></symbol>
         <symbol id="icon-back" viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></symbol>
-        <symbol id="icon-fullscreen" viewBox="0 0 24 24"><path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/></symbol>
-        <symbol id="icon-share" viewBox="0 0 24 24"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92 1.61 0 2.92-1.31 2.92-2.92s-1.31-2.92-2.92-2.92z"/></symbol>
         <symbol id="icon-google" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></symbol>
-        <symbol id="icon-star" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></symbol>
     </svg>
 
     <div id="store-view">
         <header>
             <a href="#" class="header-logo" onclick="location.reload()">
-                <svg><use href="#icon-gamepad"></use></svg>
-                asfour games
+                <svg><use href="#icon-gamepad"></use></svg> Asfour
             </a>
-            
             <div class="header-search">
                 <svg class="search-icon"><use href="#icon-search"></use></svg>
                 <input type="text" id="searchInput" class="search-input" placeholder="ابحث عن ألعاب..." onkeyup="handleSearch()">
             </div>
-            
             <div class="header-actions">
-                <button class="icon-btn" title="البحث" id="mobileSearchBtn"><svg><use href="#icon-search"></use></svg></button>
-                <button class="icon-btn" title="حسابي" onclick="openUserModal()">
+                <button class="icon-btn" id="mobileSearchBtn"><svg><use href="#icon-search"></use></svg></button>
+                <button class="icon-btn" onclick="openUserModal()">
                     <svg><use href="#icon-user"></use></svg>
-                    <div id="logged-in-dot" class="logged-in-dot"></div> <!-- النقطة الخضراء -->
+                    <div id="logged-in-dot" class="logged-in-dot"></div>
                 </button>
             </div>
         </header>
@@ -196,77 +110,44 @@
                 <div class="cat-pill" onclick="filterCategory('cars', this)">سيارات</div>
                 <div class="cat-pill" onclick="filterCategory('puzzle', this)">ذكاء وألغاز</div>
                 <div class="cat-pill" onclick="filterCategory('sports', this)">رياضة</div>
+                <div class="cat-pill" onclick="filterCategory('adventure', this)">مغامرات</div>
             </div>
-
-            <div class="games-grid" id="main-grid"></div>
+            <div class="games-grid" id="main-grid">
+                <!-- الألعاب هتظهر هنا من السيرفر -->
+                <p style="text-align:center; grid-column:1/-1; color:gray;">جاري تحميل الألعاب...</p>
+            </div>
         </main>
     </div>
 
+    <!-- شاشة اللعب -->
     <div id="player-view">
         <div class="player-nav">
             <button class="player-back-btn" onclick="closePlayer()">
-                <svg><use href="#icon-back"></use></svg> رجوع
+                <svg><use href="#icon-back"></use></svg> خروج من اللعبة
             </button>
             <div class="player-title" id="playerTitle">اسم اللعبة</div>
-            <div class="player-actions">
-                <button class="player-action-btn" title="مشاركة" onclick="copyLink()"><svg><use href="#icon-share"></use></svg></button>
-                <button class="player-action-btn" title="تكبير الشاشة" onclick="toggleFullscreen()"><svg><use href="#icon-fullscreen"></use></svg></button>
-            </div>
+            <div style="width:20px;"></div>
         </div>
-
         <div class="iframe-wrapper" id="gameContainer">
             <div class="loading-screen" id="loadingScreen">
                 <div class="loader-spinner"></div>
-                <div style="font-weight: bold;">جاري تجهيز اللعبة...</div>
+                <div>جاري التجهيز...</div>
             </div>
             <iframe id="gameIframe" class="game-iframe" allowfullscreen></iframe>
         </div>
-
-        <div class="related-games">
-            <div class="related-title">جرب أيضاً</div>
-            <div class="games-grid" id="related-grid" style="padding-bottom: 10px;"></div>
-        </div>
     </div>
 
+    <!-- شاشة الحساب -->
     <div class="modal-overlay" id="userModalOverlay">
         <div class="modal-box">
             <button class="close-modal" onclick="closeUserModal()">✕</button>
-
+            
             <div id="auth-section">
-                <div class="auth-tabs">
-                    <div class="auth-tab active" onclick="switchAuthTab('login')" id="tab-login">تسجيل الدخول</div>
-                    <div class="auth-tab" onclick="switchAuthTab('signup')" id="tab-signup">إنشاء حساب</div>
-                </div>
-
+                <h3 style="text-align:center; margin-bottom:10px;">تسجيل الدخول للمنصة</h3>
+                <p style="text-align:center; font-size:14px; color:var(--text-light);">سجل لحفظ تقدمك وجمع النقاط!</p>
                 <button class="btn-google" id="googleLoginBtn">
-                    <svg><use href="#icon-google"></use></svg>
-                    المتابعة باستخدام Google
+                    <svg><use href="#icon-google"></use></svg> المتابعة باستخدام Google
                 </button>
-
-                <div class="divider">أو باستخدام البريد الإلكتروني</div>
-
-                <form id="login-form">
-                    <div class="form-group">
-                        <input type="email" class="form-input" placeholder="البريد الإلكتروني" required>
-                    </div>
-                    <div class="form-group">
-                        <input type="password" class="form-input" placeholder="كلمة المرور" required>
-                    </div>
-                    <button type="submit" class="btn-main" disabled style="background:#9ca3af; cursor:not-allowed">البريد سيتاح قريباً</button>
-                </form>
-
-                <form id="signup-form">
-                    <div class="form-group">
-                        <input type="text" id="signup-name" class="form-input" placeholder="اسم المستخدم (مثال: بطل عصفور)" required>
-                    </div>
-                    <div class="form-group">
-                        <input type="email" class="form-input" placeholder="البريد الإلكتروني" required>
-                    </div>
-                    <div class="form-group">
-                        <input type="password" class="form-input" placeholder="كلمة المرور" required>
-                    </div>
-                    <button type="submit" class="btn-main" disabled style="background:#9ca3af; cursor:not-allowed">البريد سيتاح قريباً</button>
-                </form>
             </div>
 
             <div id="profile-section">
@@ -275,38 +156,29 @@
                     <div class="profile-name" id="user-display-name">بطل عصفور</div>
                     <div class="profile-email" id="user-display-email">لاعب مسجل</div>
                 </div>
-
                 <div class="stats-grid">
                     <div class="stat-card">
                         <div class="stat-val" id="stat-games">0</div>
-                        <div class="stat-label">لعبة لعبتها</div>
+                        <div class="stat-label">ألعاب لعبتها</div>
                     </div>
                     <div class="stat-card">
                         <div class="stat-val" id="stat-mins">0</div>
                         <div class="stat-label">دقيقة لعب</div>
                     </div>
                 </div>
-
                 <div class="points-card">
-                    <div class="points-val">
-                        <svg><use href="#icon-star"></use></svg> <span id="stat-points">0</span> نقطة
-                    </div>
-                    <div class="points-label">نظام جمع النقاط والمكافآت شغال!</div>
+                    <div class="points-val">⭐ <span id="stat-points">0</span> نقطة</div>
                 </div>
-
                 <button class="btn-logout" id="logoutBtn">تسجيل الخروج</button>
             </div>
         </div>
     </div>
 
-    <!-- ================= Firebase & Logic Scripts ================= -->
     <script type="module">
-        // استيراد مكتبات السيرفر
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-app.js";
         import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-auth.js";
-        import { getFirestore, doc, getDoc, setDoc, updateDoc, increment } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-firestore.js";
+        import { getFirestore, doc, getDoc, setDoc, updateDoc, increment, collection, onSnapshot } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-firestore.js";
 
-        // مفاتيح السيرفر بتاعك
         const firebaseConfig = {
             apiKey: "AIzaSyBNlJ-hiRIPKD4apbRbt331MSi5t0o2XGU",
             authDomain: "asfour-games.firebaseapp.com",
@@ -321,64 +193,47 @@
         const db = getFirestore(app);
         const provider = new GoogleAuthProvider();
 
-        // متغيرات للمستخدم والإحصائيات
         let currentUserData = null;
         let playInterval;
+        let globalGamesDB = [];
 
-        // مصفوفة الألعاب
-        const gamesDB = [
-            { id: 1, title: "مطاردة النجوم", category: "adventure", img: "https://via.placeholder.com/300x300/3b82f6/ffffff?text=Star+Chase", url: "star-chase/index.html", badge: "جديد" },
-            { id: 2, title: "حرب الشوارع", category: "action", img: "https://via.placeholder.com/300x300/ef4444/ffffff?text=Street+War", url: "about:blank" },
-            { id: 3, title: "دريفت ماكس", category: "cars", img: "https://via.placeholder.com/300x300/f59e0b/ffffff?text=Drift+Max", url: "about:blank", badge: "تريند" },
-            { id: 4, title: "لغز الجواهر", category: "puzzle", img: "https://via.placeholder.com/300x300/10b981/ffffff?text=Jewel+Puzzle", url: "about:blank" },
-            { id: 5, title: "ضربات جزاء", category: "sports", img: "https://via.placeholder.com/300x300/8b5cf6/ffffff?text=Penalty+Kick", url: "about:blank" },
-            { id: 6, title: "الزومبي القاتل", category: "action", img: "https://via.placeholder.com/300x300/1f2937/ffffff?text=Zombies", url: "about:blank" },
-            { id: 7, title: "سباق التيربو", category: "cars", img: "https://via.placeholder.com/300x300/f97316/ffffff?text=Turbo+Race", url: "about:blank" },
-            { id: 8, title: "هروب من السجن", category: "adventure", img: "https://via.placeholder.com/300x300/64748b/ffffff?text=Prison+Break", url: "about:blank" }
-        ];
-
-        // تسجيل الدخول
-        document.getElementById('googleLoginBtn').addEventListener('click', () => {
-            signInWithPopup(auth, provider).catch(error => alert("حدث خطأ أثناء التسجيل."));
+        // 1. جلب الألعاب من السيرفر
+        onSnapshot(collection(db, "games"), (snapshot) => {
+            globalGamesDB = [];
+            snapshot.forEach((docSnap) => {
+                let game = docSnap.data();
+                game.id = docSnap.id;
+                globalGamesDB.push(game);
+            });
+            renderGamesGrid(globalGamesDB, 'main-grid');
         });
 
-        // تسجيل الخروج
-        document.getElementById('logoutBtn').addEventListener('click', () => {
-            signOut(auth);
-        });
+        // 2. الحسابات
+        document.getElementById('googleLoginBtn').addEventListener('click', () => { signInWithPopup(auth, provider).catch(e => alert("خطأ في التسجيل.")); });
+        document.getElementById('logoutBtn').addEventListener('click', () => { signOut(auth); });
 
-        // مراقبة حالة المستخدم (عند الدخول أو الخروج)
         onAuthStateChanged(auth, async (user) => {
             if (user) {
-                // اللاعب مسجل دخول
                 currentUserData = user;
                 document.getElementById('auth-section').style.display = 'none';
                 document.getElementById('profile-section').style.display = 'block';
-                document.getElementById('logged-in-dot').style.display = 'block'; // إظهار النقطة الخضراء
-
-                // عرض بيانات اللاعب
+                document.getElementById('logged-in-dot').style.display = 'block';
                 document.getElementById('user-display-name').innerText = user.displayName;
                 document.getElementById('user-display-email').innerText = user.email;
-                if(user.photoURL) {
-                    document.getElementById('user-avatar-letter').innerHTML = `<img src="${user.photoURL}" alt="avatar">`;
-                } else {
-                    document.getElementById('user-avatar-letter').innerText = user.displayName.charAt(0);
-                }
+                
+                if(user.photoURL) document.getElementById('user-avatar-letter').innerHTML = `<img src="${user.photoURL}">`;
+                else document.getElementById('user-avatar-letter').innerText = user.displayName.charAt(0);
 
-                // جلب تقدم اللاعب من قاعدة البيانات السيرفر
                 const userDocRef = doc(db, "users", user.uid);
                 const docSnap = await getDoc(userDocRef);
-
                 if (docSnap.exists()) {
                     updateStatsUI(docSnap.data());
                 } else {
-                    // لو أول مرة يدخل، ننشئ له حساب في السيرفر
-                    const initialData = { gamesPlayed: 0, playMinutes: 0, points: 50 }; // 50 نقطة هدية تسجيل
+                    const initialData = { displayName: user.displayName, email: user.email, gamesPlayed: 0, playMinutes: 0, points: 50 }; 
                     await setDoc(userDocRef, initialData);
                     updateStatsUI(initialData);
                 }
             } else {
-                // اللاعب مش مسجل دخول
                 currentUserData = null;
                 document.getElementById('auth-section').style.display = 'block';
                 document.getElementById('profile-section').style.display = 'none';
@@ -388,59 +243,52 @@
         });
 
         function updateStatsUI(data) {
-            document.getElementById('stat-games').innerText = data.gamesPlayed;
-            document.getElementById('stat-mins').innerText = data.playMinutes;
-            document.getElementById('stat-points').innerText = data.points;
+            document.getElementById('stat-games').innerText = data.gamesPlayed || 0;
+            document.getElementById('stat-mins').innerText = data.playMinutes || 0;
+            document.getElementById('stat-points').innerText = data.points || 0;
         }
 
-        // ================= دوال المتجر وعرض الألعاب =================
+        // 3. واجهة الموقع
         window.openUserModal = function() {
             const overlay = document.getElementById('userModalOverlay');
             overlay.style.display = 'flex';
             document.body.classList.add('no-scroll');
             setTimeout(() => { overlay.classList.add('active'); }, 10);
         }
-
         window.closeUserModal = function() {
             const overlay = document.getElementById('userModalOverlay');
             overlay.classList.remove('active');
             setTimeout(() => { 
                 overlay.style.display = 'none'; 
-                if(document.getElementById('player-view').style.display !== 'block') {
-                    document.body.classList.remove('no-scroll');
-                }
+                if(document.getElementById('player-view').style.display !== 'block') document.body.classList.remove('no-scroll');
             }, 300);
         }
 
-        window.switchAuthTab = function(tab) {
-            document.getElementById('tab-login').classList.remove('active');
-            document.getElementById('tab-signup').classList.remove('active');
-            document.getElementById(`tab-${tab}`).classList.add('active');
-            document.getElementById('login-form').style.display = tab === 'login' ? 'block' : 'none';
-            document.getElementById('signup-form').style.display = tab === 'signup' ? 'block' : 'none';
-        }
-
         function renderGamesGrid(gamesList, containerId) {
-            const container = document.getElementById(containerId);
-            container.innerHTML = ""; 
-            if(gamesList.length === 0) return;
-
-            let htmlChunk = "";
+            const container = document.getElementById(containerId); container.innerHTML = ""; 
+            if(gamesList.length === 0) { container.innerHTML = "<p style='color:gray; grid-column:1/-1; text-align:center;'>لا توجد ألعاب حالياً.</p>"; return; }
+            let html = "";
             gamesList.forEach(game => {
-                let badgeHtml = game.badge ? `<div class="game-badge">${game.badge}</div>` : '';
-                htmlChunk += `
-                    <div class="game-card" onclick="openPlayer('${game.id}', '${game.title}', '${game.url}')">
-                        <div class="game-icon-wrapper">
-                            ${badgeHtml}
-                            <img src="${game.img}" alt="${game.title}" class="game-icon-img" loading="lazy">
-                        </div>
-                        <div class="game-title">${game.title}</div>
-                    </div>
-                `;
+                html += `<div class="game-card" onclick="openPlayer('${game.id}', '${game.title}', '${game.url}')">
+                    <div class="game-icon-wrapper"><img src="${game.img}" class="game-icon-img" loading="lazy"></div>
+                    <div class="game-title">${game.title}</div>
+                </div>`;
             });
-            container.innerHTML = htmlChunk;
+            container.innerHTML = html;
         }
 
+        window.filterCategory = function(cat, btn) {
+            document.querySelectorAll('.cat-pill').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            if(cat === 'all') renderGamesGrid(globalGamesDB, 'main-grid');
+            else renderGamesGrid(globalGamesDB.filter(g => g.category === cat), 'main-grid');
+        }
+        window.handleSearch = function() {
+            const query = document.getElementById('searchInput').value.toLowerCase();
+            renderGamesGrid(globalGamesDB.filter(g => g.title.toLowerCase().includes(query)), 'main-grid');
+        }
+
+        // 4. نظام اللعب والنقاط (10 نقط كل دقيقة)
         window.openPlayer = async function(id, title, url) {
             document.body.classList.add('no-scroll');
             document.getElementById('store-view').style.display = 'none';
@@ -452,31 +300,19 @@
             setTimeout(() => {
                 document.getElementById('gameIframe').src = url;
                 document.getElementById('loadingScreen').style.display = 'none';
-            }, 1500);
+            }, 1000);
 
-            // تحديث السيرفر لو اللاعب مسجل دخول (زيادة الألعاب الملعوبة)
             if(currentUserData) {
                 const userDocRef = doc(db, "users", currentUserData.uid);
-                await updateDoc(userDocRef, { 
-                    gamesPlayed: increment(1),
-                    points: increment(10) // 10 نقط هدية فتح اللعبة
-                });
+                await updateDoc(userDocRef, { gamesPlayed: increment(1) });
                 
-                // عداد الوقت يحسب دقايق ويرفعها للسيرفر كل دقيقة
+                // العداد بيحسب 10 نقط كل دقيقة
                 playInterval = setInterval(async () => { 
-                    await updateDoc(userDocRef, { 
-                        playMinutes: increment(1),
-                        points: increment(2) // نقطتين لكل دقيقة لعب
-                    });
-                    
-                    // تحديث الواجهة مباشرة
+                    await updateDoc(userDocRef, { playMinutes: increment(1), points: increment(10) });
                     const docSnap = await getDoc(userDocRef);
                     if(docSnap.exists()) updateStatsUI(docSnap.data());
                 }, 60000); 
             }
-
-            const randomGames = [...gamesDB].sort(() => 0.5 - Math.random()).slice(0, 4);
-            renderGamesGrid(randomGames, 'related-grid');
         }
 
         window.closePlayer = function() {
@@ -484,35 +320,7 @@
             document.getElementById('gameIframe').src = ""; 
             document.getElementById('player-view').style.display = 'none';
             document.getElementById('store-view').style.display = 'block';
-            if(playInterval) clearInterval(playInterval); // إيقاف العداد
-        }
-
-        window.filterCategory = function(cat, btnElement) {
-            document.querySelectorAll('.cat-pill').forEach(btn => btn.classList.remove('active'));
-            btnElement.classList.add('active');
-            if(cat === 'all') renderGamesGrid(gamesDB, 'main-grid');
-            else renderGamesGrid(gamesDB.filter(g => g.category === cat), 'main-grid');
-        }
-
-        window.handleSearch = function() {
-            const query = document.getElementById('searchInput').value.toLowerCase();
-            renderGamesGrid(gamesDB.filter(g => g.title.toLowerCase().includes(query)), 'main-grid');
-        }
-
-        window.toggleFullscreen = function() {
-            const playerNode = document.getElementById('gameContainer');
-            if (!document.fullscreenElement) {
-                if (playerNode.requestFullscreen) { playerNode.requestFullscreen(); }
-                else if (playerNode.webkitRequestFullscreen) { playerNode.webkitRequestFullscreen(); }
-            } else {
-                if (document.exitFullscreen) { document.exitFullscreen(); }
-                else if (document.webkitExitFullscreen) { document.webkitExitFullscreen(); }
-            }
-        }
-
-        window.copyLink = function() {
-            navigator.clipboard.writeText(window.location.href);
-            alert("تم نسخ رابط اللعبة بنجاح!");
+            if(playInterval) clearInterval(playInterval); // توقيف العداد 
         }
 
         document.getElementById('mobileSearchBtn').addEventListener('click', () => {
@@ -520,9 +328,6 @@
             searchBar.style.display = searchBar.style.display === 'block' ? 'none' : 'block';
             if(searchBar.style.display === 'block') document.getElementById('searchInput').focus();
         });
-
-        // تشغيل الموقع في البداية
-        window.onload = () => { renderGamesGrid(gamesDB, 'main-grid'); };
     </script>
 </body>
 </html>
