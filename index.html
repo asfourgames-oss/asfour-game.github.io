@@ -27,7 +27,8 @@
 
         main { margin-top: var(--header-height); padding: 15px; min-height: calc(100vh - var(--header-height)); min-height: calc(100dvh - var(--header-height)); padding-bottom: 50px; }
 
-        /* شريط بحث الموبايل (منفصل تحت الهيدر) */
+        .announcement { display: none; background: #fef3c7; color: #92400e; border: 1px solid #fcd34d; padding: 10px 14px; border-radius: 12px; font-size: 14px; font-weight: 600; margin-bottom: 12px; text-align: center; }
+
         .mobile-search-bar { display: none; margin-bottom: 12px; position: relative; }
         .mobile-search-bar.open { display: block; }
         @media (min-width: 768px) { .mobile-search-bar, .mobile-search-bar.open { display: none; } }
@@ -48,6 +49,7 @@
         .game-card:hover .game-icon-wrapper { transform: translateY(-3px); }
         .game-icon-wrapper { width: 100%; aspect-ratio: 1 / 1; border-radius: var(--card-radius); overflow: hidden; background: #e5e7eb; position: relative; box-shadow: var(--shadow-md); transition: var(--transition); }
         .game-icon-img { width: 100%; height: 100%; object-fit: cover; display: block; }
+        .badge-featured { position: absolute; top: 8px; right: 8px; background: #f59e0b; color: #fff; font-size: 11px; font-weight: bold; padding: 3px 8px; border-radius: 10px; }
         .game-title { margin-top: 8px; font-size: 12px; font-weight: 600; color: var(--text-main); text-align: center; width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
         #player-view { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100vh; height: 100dvh; background: var(--bg-color); z-index: 2000; overflow-y: auto; }
@@ -84,6 +86,10 @@
         .points-val { font-size: 20px; font-weight: bold; }
         .btn-logout { width: 100%; background: transparent; color: #ef4444; border: 1px solid #fca5a5; padding: 12px; border-radius: 12px; font-weight: bold; font-size: 14px; cursor: pointer; }
         #profile-section { display: none; }
+
+        #maintenance { display: none; position: fixed; inset: 0; background: #111827; color: #fff; z-index: 5000; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 20px; gap: 10px; }
+        #maintenance h2 { font-size: 24px; }
+        #maintenance p { color: #9ca3af; }
     </style>
 </head>
 <body>
@@ -95,6 +101,12 @@
         <symbol id="icon-back" viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></symbol>
         <symbol id="icon-google" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></symbol>
     </svg>
+
+    <div id="maintenance">
+        <div style="font-size:48px;">🛠️</div>
+        <h2>الموقع تحت الصيانة</h2>
+        <p>هنرجع قريب، شكراً لصبرك!</p>
+    </div>
 
     <div id="store-view">
         <header>
@@ -115,6 +127,8 @@
         </header>
 
         <main>
+            <div class="announcement" id="announcement"></div>
+
             <div class="mobile-search-bar" id="mobileSearchBar">
                 <svg class="search-icon"><use href="#icon-search"></use></svg>
                 <input type="text" id="searchInputMobile" class="search-input" placeholder="ابحث عن ألعاب..." autocomplete="off">
@@ -187,6 +201,7 @@
                 <div class="points-card">
                     <div class="points-val">⭐ <span id="stat-points">0</span> نقطة</div>
                 </div>
+                <div class="auth-error" id="banNote"></div>
                 <button class="btn-logout" id="logoutBtn">تسجيل الخروج</button>
             </div>
         </div>
@@ -195,7 +210,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-app.js";
         import { getAuth, signInWithPopup, signInWithRedirect, getRedirectResult, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-auth.js";
-        import { getFirestore, doc, getDoc, setDoc, updateDoc, increment, serverTimestamp, collection, onSnapshot } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-firestore.js";
+        import { getFirestore, doc, getDoc, setDoc, updateDoc, increment, serverTimestamp, writeBatch, collection, onSnapshot } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyBNlJ-hiRIPKD4apbRbt331MSi5t0o2XGU",
@@ -206,6 +221,8 @@
             appId: "1:232632114081:web:d81e9100a68252038b09e0"
         };
 
+        const ADMIN_EMAIL = 'asfour.games67@gmail.com';
+
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
@@ -214,18 +231,19 @@
         const $ = (id) => document.getElementById(id);
 
         // ---------- الحالة ----------
-        let currentUserData = null;      // مستخدم Firebase
-        let stats = { gamesPlayed: 0, playMinutes: 0, points: 0 };
+        let currentUserData = null;
+        let stats = { gamesPlayed: 0, playMinutes: 0, points: 0, banned: false };
         let globalGamesDB = [];
+        let settings = {};
         let currentCat = 'all';
         let searchQuery = '';
         let playInterval = null;
         let playerOpen = false;
         let loadTimeout = null;
-        const countedGames = new Set();  // الألعاب اللي اتحسبت في الجلسة دي
+        let currentGame = null;      // { id, title }
+        let playReady = false;       // وثيقة سجل اللعبة جاهزة
+        const countedGames = new Set();
 
-        // ---------- أدوات أمان ----------
-        // يسمح فقط بروابط http/https (يمنع javascript: وغيره)
         function safeUrl(u) {
             try {
                 const parsed = new URL(u, location.href);
@@ -233,7 +251,22 @@
             } catch (e) { return ''; }
         }
 
-        // ---------- 1. جلب الألعاب ----------
+        // ---------- الإعدادات (إعلان / صيانة) ----------
+        onSnapshot(doc(db, "settings", "main"), (snap) => {
+            settings = snap.exists() ? snap.data() : {};
+            applySettings();
+        }, () => {});
+
+        function applySettings() {
+            const text = String(settings.announcement || '').trim();
+            const banner = $('announcement');
+            banner.textContent = text;
+            banner.style.display = text ? 'block' : 'none';
+            const isAdmin = currentUserData && currentUserData.email === ADMIN_EMAIL;
+            $('maintenance').style.display = (settings.maintenance && !isAdmin) ? 'flex' : 'none';
+        }
+
+        // ---------- جلب الألعاب ----------
         onSnapshot(collection(db, "games"), (snapshot) => {
             globalGamesDB = [];
             snapshot.forEach((docSnap) => {
@@ -256,13 +289,20 @@
             grid.appendChild(p);
         }
 
-        // ---------- 2. الفلترة (بحث + تصنيف مع بعض) ----------
+        // ---------- الفلترة (بحث + تصنيف + إخفاء + ترتيب) ----------
         function applyFilters() {
             const q = searchQuery.trim().toLowerCase();
             const list = globalGamesDB.filter(g => {
+                if (g.hidden) return false;
                 const catOk = currentCat === 'all' || g.category === currentCat;
                 const searchOk = !q || String(g.title || '').toLowerCase().includes(q);
                 return catOk && searchOk;
+            }).sort((a, b) => {
+                if (!!b.featured !== !!a.featured) return b.featured ? 1 : -1;
+                const oa = Number.isFinite(a.order) ? a.order : 9999;
+                const ob = Number.isFinite(b.order) ? b.order : 9999;
+                if (oa !== ob) return oa - ob;
+                return String(a.title || '').localeCompare(String(b.title || ''), 'ar');
             });
             renderGamesGrid(list);
         }
@@ -286,6 +326,13 @@
                 img.loading = 'lazy';
                 wrap.appendChild(img);
 
+                if (game.featured) {
+                    const badge = document.createElement('div');
+                    badge.className = 'badge-featured';
+                    badge.textContent = '⭐ مميزة';
+                    wrap.appendChild(badge);
+                }
+
                 const title = document.createElement('div');
                 title.className = 'game-title';
                 title.textContent = game.title || '';
@@ -306,7 +353,6 @@
 
         function onSearchInput(e) {
             searchQuery = e.target.value;
-            // نزامن الخانتين
             if (e.target.id === 'searchInput') $('searchInputMobile').value = searchQuery;
             else $('searchInput').value = searchQuery;
             applyFilters();
@@ -322,7 +368,7 @@
 
         $('logoLink').addEventListener('click', (e) => { e.preventDefault(); location.reload(); });
 
-        // ---------- 3. الحسابات ----------
+        // ---------- الحسابات ----------
         function setAuthError(msg) { $('authError').textContent = msg || ''; }
 
         $('googleLoginBtn').addEventListener('click', async () => {
@@ -340,9 +386,7 @@
             }
         });
 
-        // نتيجة الرجوع من signInWithRedirect
         getRedirectResult(auth).catch(() => setAuthError("تعذر إكمال تسجيل الدخول."));
-
         $('logoutBtn').addEventListener('click', () => { signOut(auth); });
 
         onAuthStateChanged(auth, async (user) => {
@@ -360,37 +404,52 @@
                 const photo = safeUrl(user.photoURL);
                 if (photo) {
                     const im = document.createElement('img');
-                    im.src = photo;
-                    im.alt = name;
+                    im.src = photo; im.alt = name;
                     avatar.appendChild(im);
                 } else {
                     avatar.textContent = name.charAt(0);
                 }
 
                 try {
-                    const userDocRef = doc(db, "users", user.uid);
-                    const docSnap = await getDoc(userDocRef);
-                    if (docSnap.exists()) {
-                        stats = { gamesPlayed: 0, playMinutes: 0, points: 0, ...docSnap.data() };
+                    const userRef = doc(db, "users", user.uid);
+                    const snap = await getDoc(userRef);
+                    if (snap.exists()) {
+                        stats = { gamesPlayed: 0, playMinutes: 0, points: 0, banned: false, ...snap.data() };
+                        try {
+                            await updateDoc(userRef, {
+                                displayName: name,
+                                email: user.email || '',
+                                photoURL: user.photoURL || '',
+                                lastLogin: serverTimestamp()
+                            });
+                        } catch (e) { /* محظور أو مفيش صلاحية: عادي */ }
                     } else {
-                        const initialData = { displayName: name, email: user.email || '', gamesPlayed: 0, playMinutes: 0, points: 50 };
-                        await setDoc(userDocRef, initialData);
-                        stats = initialData;
+                        await setDoc(userRef, {
+                            displayName: name,
+                            email: user.email || '',
+                            photoURL: user.photoURL || '',
+                            gamesPlayed: 0, playMinutes: 0, points: 50,
+                            createdAt: serverTimestamp(),
+                            lastLogin: serverTimestamp()
+                        });
+                        stats = { gamesPlayed: 0, playMinutes: 0, points: 50, banned: false };
                     }
                 } catch (e) { console.error(e); }
                 updateStatsUI();
+                applySettings();
 
-                // لو اللاعب سجل دخول وهو جوه لعبة، ابدأ العداد
-                if (playerOpen) startTimer();
+                if (playerOpen) { await recordGameOpen(); startTimer(); }
             } else {
-                stopTimer(); // وقف العداد عند تسجيل الخروج
+                stopTimer();
                 currentUserData = null;
-                stats = { gamesPlayed: 0, playMinutes: 0, points: 0 };
+                playReady = false;
+                stats = { gamesPlayed: 0, playMinutes: 0, points: 0, banned: false };
                 countedGames.clear();
                 $('auth-section').style.display = 'block';
                 $('profile-section').style.display = 'none';
                 $('logged-in-dot').style.display = 'none';
                 updateStatsUI();
+                applySettings();
             }
         });
 
@@ -398,9 +457,10 @@
             $('stat-games').textContent = stats.gamesPlayed || 0;
             $('stat-mins').textContent = stats.playMinutes || 0;
             $('stat-points').textContent = stats.points || 0;
+            $('banNote').textContent = stats.banned ? 'حسابك موقوف عن جمع النقاط.' : '';
         }
 
-        // ---------- 4. نافذة الحساب ----------
+        // ---------- نافذة الحساب ----------
         function openUserModal() {
             const overlay = $('userModalOverlay');
             overlay.style.display = 'flex';
@@ -419,19 +479,27 @@
         $('closeModalBtn').addEventListener('click', closeUserModal);
         $('userModalOverlay').addEventListener('click', (e) => { if (e.target.id === 'userModalOverlay') closeUserModal(); });
 
-        // ---------- 5. نظام اللعب والنقاط (10 نقط كل دقيقة) ----------
+        // ---------- نظام اللعب والنقاط (10 نقط كل دقيقة) ----------
         function startTimer() {
             stopTimer();
-            if (!currentUserData || !playerOpen || document.hidden) return;
-            const userDocRef = doc(db, "users", currentUserData.uid);
+            if (!currentUserData || !playerOpen || document.hidden || stats.banned) return;
+            const uid = currentUserData.uid;
             playInterval = setInterval(async () => {
-                if (document.hidden) return; // ما تحسبش والتاب في الخلفية
+                if (document.hidden) return;
                 try {
-                    await updateDoc(userDocRef, {
+                    const batch = writeBatch(db);
+                    batch.update(doc(db, "users", uid), {
                         playMinutes: increment(1),
                         points: increment(10),
                         lastTick: serverTimestamp()
                     });
+                    if (playReady && currentGame) {
+                        batch.update(doc(db, "users", uid, "plays", currentGame.id), {
+                            minutes: increment(1),
+                            lastPlayed: serverTimestamp()
+                        });
+                    }
+                    await batch.commit();
                     stats.playMinutes = (stats.playMinutes || 0) + 1;
                     stats.points = (stats.points || 0) + 10;
                     updateStatsUI();
@@ -443,17 +511,47 @@
             if (playInterval) { clearInterval(playInterval); playInterval = null; }
         }
 
-        // وقف/استئناف العداد حسب ظهور الصفحة
         document.addEventListener('visibilitychange', () => {
             if (document.hidden) stopTimer();
             else if (playerOpen) startTimer();
         });
+
+        // تسجيل فتح اللعبة: سجل اللاعب + عداد الألعاب + عداد اللعبة
+        async function recordGameOpen() {
+            if (!currentUserData || !currentGame || stats.banned) return;
+            const { id, title } = currentGame;
+            const uid = currentUserData.uid;
+            const first = !countedGames.has(id);
+            playReady = false;
+
+            const playRef = doc(db, "users", uid, "plays", id);
+            try {
+                const snap = await getDoc(playRef);
+                if (!snap.exists()) {
+                    await setDoc(playRef, { title: title || '', count: 1, minutes: 0, lastPlayed: serverTimestamp() });
+                } else if (first) {
+                    await updateDoc(playRef, { count: increment(1), lastPlayed: serverTimestamp() });
+                }
+                playReady = true;
+            } catch (e) { console.error(e); }
+
+            if (first) {
+                countedGames.add(id);
+                try {
+                    await updateDoc(doc(db, "users", uid), { gamesPlayed: increment(1) });
+                    stats.gamesPlayed = (stats.gamesPlayed || 0) + 1;
+                    updateStatsUI();
+                } catch (e) { console.error(e); }
+                try { await updateDoc(doc(db, "games", id), { plays: increment(1) }); } catch (e) { /* مش مشكلة */ }
+            }
+        }
 
         async function openPlayer(id, title, url) {
             const gameUrl = safeUrl(url);
             if (!gameUrl) { alert("رابط اللعبة غير صالح."); return; }
 
             playerOpen = true;
+            currentGame = { id, title };
             document.body.classList.add('no-scroll');
             $('store-view').style.display = 'none';
             $('player-view').style.display = 'block';
@@ -469,20 +567,13 @@
             }, 1000);
 
             startTimer();
-
-            // يزوّد عدد الألعاب مرة واحدة لكل لعبة في الجلسة
-            if (currentUserData && !countedGames.has(id)) {
-                countedGames.add(id);
-                try {
-                    await updateDoc(doc(db, "users", currentUserData.uid), { gamesPlayed: increment(1) });
-                    stats.gamesPlayed = (stats.gamesPlayed || 0) + 1;
-                    updateStatsUI();
-                } catch (e) { console.error(e); }
-            }
+            await recordGameOpen();
         }
 
         function closePlayer() {
             playerOpen = false;
+            currentGame = null;
+            playReady = false;
             stopTimer();
             clearTimeout(loadTimeout);
             document.body.classList.remove('no-scroll');
