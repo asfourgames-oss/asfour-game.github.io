@@ -125,6 +125,14 @@
         .tier-sub { font-size: 12px; color: #92400e; }
         .btn-soft { width: 100%; background: #f3f4f6; color: var(--text-main); border: 1px solid #e5e7eb; padding: 12px; border-radius: 12px; font-weight: bold; font-size: 14px; cursor: pointer; margin-bottom: 12px; }
         .tiers-note { background: #eff6ff; color: #1e3a8a; border: 1px solid #bfdbfe; border-radius: 14px; padding: 12px 14px; font-size: 14px; line-height: 1.8; margin: 14px 0; white-space: pre-wrap; }
+        .prize-box { background: #f0fdf4; border: 1px solid #86efac; border-radius: 14px; padding: 12px 14px; margin-bottom: 14px; }
+        .prize-box h4 { font-size: 14px; margin-bottom: 8px; color: #166534; }
+        .prize-line { display: flex; gap: 8px; font-size: 14px; padding: 4px 0; line-height: 1.6; }
+        .prize-line b { white-space: nowrap; }
+        .my-rank { position: sticky; bottom: 0; background: #1f2937; color: #fff; border-radius: 14px; padding: 12px 14px; margin-top: 10px; text-align: center; font-weight: 800; font-size: 14px; }
+        .tier-row .sub { font-size: 11px; color: var(--text-light); direction: ltr; text-align: right; }
+        .tier-row .prz { font-size: 11px; background: #dcfce7; color: #166534; border-radius: 8px; padding: 2px 6px; font-weight: 700; }
+        .tier-row .rk { width: 40px; text-align: center; font-weight: 900; font-size: 16px; }
         .tier-row { display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: 14px; border: 1px solid #e5e7eb; margin-bottom: 8px; background: #fff; }
         .tier-row.me { border-color: #f59e0b; background: #fffbeb; box-shadow: 0 0 0 2px #fde68a; }
         .tier-row .em { font-size: 26px; width: 36px; text-align: center; }
@@ -171,7 +179,7 @@
                 <input type="text" id="searchInput" class="search-input" placeholder="ابحث عن ألعاب..." autocomplete="off">
             </div>
             <div class="header-actions">
-                <button class="tier-chip" id="tierBtn" aria-label="التصنيفات">🏆 <span id="tierChipText">—</span></button>
+                <button class="tier-chip" id="tierBtn" aria-label="التصنيفات">🏆 <span id="tierChipText">التصنيف</span></button>
                 <button class="icon-btn" id="mobileSearchBtn" aria-label="بحث"><svg><use href="#icon-search"></use></svg></button>
                 <button class="icon-btn" id="userBtn" aria-label="الحساب">
                     <svg><use href="#icon-user"></use></svg>
@@ -250,17 +258,16 @@
                 </div>
                 <div class="tier-card">
                     <div class="tier-name" id="tier-name">—</div>
-                    <div class="tier-bar"><i id="tier-bar"></i></div>
-                    <div class="tier-sub" id="tier-sub"></div>
+                    <div class="tier-sub" id="tier-sub">مركزك في لوحة التصنيف</div>
                 </div>
-                <button class="btn-soft" id="editProfileBtn">✏️ تعديل الاسم واليوزر</button>
+                <button class="btn-soft" id="editProfileBtn">✏️ تعديل الاسم</button>
                 <div class="edit-box" id="editBox">
                     <div class="field"><label for="editName">الاسم</label><input id="editName" maxlength="30" autocomplete="off"></div>
-                    <div class="field"><label for="editUser">اليوزر</label><input id="editUser" dir="ltr" maxlength="20" autocomplete="off" autocapitalize="off" spellcheck="false"><small>حروف إنجليزي وأرقام و _ فقط (من 3 لـ 20)</small></div>
+                    <small style="display:block;color:var(--text-light);font-size:12px;margin-top:6px;">اليوزر والـ ID ثابتين ومينفعش يتغيروا.</small>
                     <div class="auth-error" id="editError"></div>
                     <button class="btn-primary" id="saveProfileBtn" style="margin-top:12px;">حفظ</button>
                 </div>
-                <button class="btn-soft" id="openTiersBtn">🏆 شوف كل التصنيفات</button>
+                <button class="btn-soft" id="openTiersBtn">🏆 شوف لوحة التصنيف</button>
                 <div class="stats-grid">
                     <div class="stat-card">
                         <div class="stat-val" id="stat-games">0</div>
@@ -285,16 +292,18 @@
     <div class="modal-overlay" id="tiersOverlay">
         <div class="modal-box">
             <button class="close-modal" id="closeTiersBtn" aria-label="إغلاق">✕</button>
-            <h3 style="text-align:center; margin-bottom:4px;">🏆 تصنيف النقاط</h3>
+            <h3 style="text-align:center; margin-bottom:4px;">🏆 لوحة التصنيف</h3>
             <div class="tiers-note" id="tiersNote" style="display:none;"></div>
+            <div id="prizesBox"></div>
             <div id="tiersList"></div>
+            <div class="my-rank" id="myRankBar"></div>
         </div>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-app.js";
         import { getAuth, signInWithPopup, signInWithRedirect, getRedirectResult, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-auth.js";
-        import { initializeFirestore, doc, getDoc, setDoc, updateDoc, increment, serverTimestamp, writeBatch, collection, onSnapshot, getDocs, runTransaction } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-firestore.js";
+        import { initializeFirestore, doc, getDoc, setDoc, updateDoc, increment, serverTimestamp, writeBatch, collection, onSnapshot, getDocs, runTransaction, query, orderBy, limit, where, getCountFromServer } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyBNlJ-hiRIPKD4apbRbt331MSi5t0o2XGU",
@@ -341,33 +350,12 @@
             return safeUrl(u);
         }
 
-        // ---------- التصنيفات ----------
-        const DEFAULT_TIERS = [
-            { name: 'برونزي', emoji: '🥉', min: 0 },
-            { name: 'فضي', emoji: '🥈', min: 500 },
-            { name: 'ذهبي', emoji: '🥇', min: 2000 },
-            { name: 'بلاتيني', emoji: '💠', min: 5000 },
-            { name: 'ماسي', emoji: '💎', min: 10000 }
-        ];
-        function getTiers() {
-            const raw = Array.isArray(settings.tiers) ? settings.tiers : [];
-            const list = raw.map(t => ({ name: String(t.name || '').trim(), emoji: String(t.emoji || '').trim(), min: Math.max(0, Number(t.min) || 0) }))
-                .filter(t => t.name).sort((a, b) => a.min - b.min);
-            return list.length ? list : DEFAULT_TIERS;
-        }
-        function tierInfo(points) {
-            const list = getTiers(); const p = Number(points || 0);
-            let cur = list[0], idx = 0;
-            list.forEach((t, i) => { if (p >= t.min) { cur = t; idx = i; } });
-            return { cur, next: list[idx + 1] || null, list };
-        }
-
         // ---------- الإعدادات (إعلان / صيانة / تصنيفات) ----------
         onSnapshot(doc(db, "settings", "main"), (snap) => {
             settings = snap.exists() ? snap.data() : {};
             applySettings();
             if (profileReady) updateStatsUI();
-            if ($('tiersOverlay').classList.contains('active')) renderTiers();
+            if ($('tiersOverlay').classList.contains('active')) renderPrizes();
         }, () => {});
 
         function applySettings() {
@@ -597,6 +585,8 @@
                 setAuthError('');
                 renderAccountUI();
                 applySettings();
+                syncLeaderboard();
+                refreshRank();
                 if (playerOpen) { await recordGameOpen(); startTimer(); }
             } catch (e) {
                 console.error(e);
@@ -641,51 +631,61 @@
             throw lastErr;
         }
 
-        // ---------- تعديل الاسم واليوزر (اختياري) ----------
+        // ---------- مزامنة لوحة التصنيف (نسخة عامة محدودة: الاسم + اليوزر + ID + النقاط) ----------
+        async function syncLeaderboard() {
+            if (!currentUserData || !profileReady || !stats.username) return;
+            try {
+                await setDoc(doc(db, "leaderboard", currentUserData.uid), {
+                    name: stats.name, username: stats.username, playerId: stats.playerId, points: Number(stats.points || 0)
+                });
+            } catch (e) { console.warn("leaderboard sync", e); }
+        }
+
+        // ---------- تعديل الاسم فقط ----------
         $('editProfileBtn').addEventListener('click', () => {
             const box = $('editBox');
             const open = box.style.display !== 'block';
             box.style.display = open ? 'block' : 'none';
-            if (open) { $('editName').value = stats.name || ''; $('editUser').value = stats.username || ''; $('editError').textContent = ''; }
+            if (open) { $('editName').value = stats.name || ''; $('editError').textContent = ''; }
         });
         $('saveProfileBtn').addEventListener('click', async () => {
             const user = currentUserData;
             if (!user || !profileReady) return;
             const err = (m) => { $('editError').textContent = m; };
             const name = $('editName').value.trim().replace(/\s+/g, ' ');
-            const username = $('editUser').value.trim().replace(/^@/, '').toLowerCase();
             err('');
             if (name.length < 2 || name.length > 30) { err('الاسم لازم يكون من 2 لـ 30 حرف.'); return; }
-            if (!/^[a-z0-9_]{3,20}$/.test(username)) { err('اليوزر: حروف إنجليزي وأرقام و _ فقط (من 3 لـ 20).'); return; }
             const btn = $('saveProfileBtn'); btn.disabled = true; btn.textContent = 'جاري الحفظ...';
-            const userRef = doc(db, "users", user.uid);
             try {
-                if (username === stats.username) {
-                    await updateDoc(userRef, { name, displayName: name });
-                } else {
-                    const oldRef = doc(db, "usernames", stats.username);
-                    const newRef = doc(db, "usernames", username);
-                    await runTransaction(db, async (tx) => {
-                        const un = await tx.get(newRef);
-                        if (un.exists()) throw new Error('USERNAME_TAKEN');
-                        tx.set(newRef, { uid: user.uid, username, createdAt: serverTimestamp() });
-                        tx.delete(oldRef);
-                        tx.update(userRef, { name, displayName: name, username });
-                    });
-                }
-                stats.name = name; stats.displayName = name; stats.username = username;
+                await updateDoc(doc(db, "users", user.uid), { name, displayName: name });
+                stats.name = name; stats.displayName = name;
                 $('editBox').style.display = 'none';
                 renderAccountUI();
+                syncLeaderboard();
             } catch (e) {
                 console.error(e);
-                if (e.message === 'USERNAME_TAKEN') err('اليوزر ده مستخدم، جرّب واحد تاني.');
-                else err('تعذر الحفظ. جرّب تاني.');
+                err('تعذر الحفظ. جرّب تاني.');
             }
             btn.disabled = false; btn.textContent = 'حفظ';
         });
 
+        // ---------- مركز اللاعب ----------
+        let myRank = null;
+        async function fetchMyRank() {
+            if (!profileReady) { myRank = null; return null; }
+            try {
+                const c = await getCountFromServer(query(collection(db, "leaderboard"), where("points", ">", Number(stats.points || 0))));
+                myRank = c.data().count + 1;
+            } catch (e) { console.warn("rank", e); }
+            return myRank;
+        }
+        async function refreshRank() {
+            await fetchMyRank();
+            updateStatsUI();
+        }
+
         function updateStatsUI() {
-            if (!profileReady) { $('tierChipText').textContent = 'التصنيفات'; return; }
+            if (!profileReady) { $('tierChipText').textContent = 'التصنيف'; return; }
             const nm = stats.name || (currentUserData && currentUserData.displayName) || 'لاعب';
             $('user-display-name').textContent = nm;
             $('user-display-email').textContent = (currentUserData && currentUserData.email) || '';
@@ -695,19 +695,9 @@
             $('stat-mins').textContent = stats.playMinutes || 0;
             $('stat-points').textContent = stats.points || 0;
             $('banNote').textContent = stats.banned ? 'حسابك موقوف عن جمع النقاط.' : '';
-
-            const { cur, next } = tierInfo(stats.points);
-            $('tierChipText').textContent = cur.name;
-            $('tier-name').textContent = (cur.emoji ? cur.emoji + ' ' : '') + cur.name;
-            const p = Number(stats.points || 0);
-            if (next) {
-                const pct = Math.max(0, Math.min(100, ((p - cur.min) / (next.min - cur.min)) * 100));
-                $('tier-bar').style.width = pct + '%';
-                $('tier-sub').textContent = 'باقي ' + (next.min - p) + ' نقطة لتصنيف ' + next.name;
-            } else {
-                $('tier-bar').style.width = '100%';
-                $('tier-sub').textContent = 'وصلت لأعلى تصنيف 🎉';
-            }
+            $('tier-name').textContent = myRank ? ('المركز #' + myRank) : '—';
+            $('tier-sub').textContent = 'مركزك في لوحة التصنيف · ' + (stats.points || 0) + ' نقطة';
+            $('tierChipText').textContent = myRank ? ('#' + myRank) : 'التصنيف';
         }
 
         // ---------- النوافذ ----------
@@ -731,27 +721,73 @@
         $('closeModalBtn').addEventListener('click', () => closeOverlay('userModalOverlay'));
         $('userModalOverlay').addEventListener('click', (e) => { if (e.target.id === 'userModalOverlay') closeOverlay('userModalOverlay'); });
 
-        function renderTiers() {
-            const note = String(settings.tiersNote || '').trim();
+        function renderPrizes() {
+            const note = String(settings.rankNote || '').trim();
             const noteEl = $('tiersNote');
             noteEl.textContent = note;
             noteEl.style.display = note ? 'block' : 'none';
-            const { cur, list } = tierInfo(stats.points);
-            const box = $('tiersList');
+            const box = $('prizesBox');
             box.textContent = '';
-            list.forEach(t => {
-                const row = document.createElement('div');
-                row.className = 'tier-row' + (profileReady && t === cur ? ' me' : '');
-                const em = document.createElement('div'); em.className = 'em'; em.textContent = t.emoji || '🏅';
-                const nm = document.createElement('div'); nm.className = 'nm'; nm.textContent = t.name;
-                const pt = document.createElement('div'); pt.className = 'pt'; pt.textContent = 'من ' + t.min + ' نقطة';
-                row.append(em, nm);
-                if (profileReady && t === cur) { const you = document.createElement('span'); you.className = 'you'; you.textContent = 'تصنيفك'; row.appendChild(you); }
-                row.appendChild(pt);
-                box.appendChild(row);
+            const prizes = (Array.isArray(settings.prizes) ? settings.prizes : []).filter(x => x && String(x.text || '').trim());
+            if (!prizes.length) return;
+            const wrap = document.createElement('div'); wrap.className = 'prize-box';
+            const t = document.createElement('h4'); t.textContent = '🎁 الجوايز'; wrap.appendChild(t);
+            prizes.sort((a, b) => (Number(a.rank) || 0) - (Number(b.rank) || 0)).forEach(x => {
+                const line = document.createElement('div'); line.className = 'prize-line';
+                const l = document.createElement('b'); l.textContent = 'المركز ' + x.rank + ':';
+                const v = document.createElement('span'); v.textContent = String(x.text);
+                line.append(l, v); wrap.appendChild(line);
             });
+            box.appendChild(wrap);
         }
-        function openTiers() { renderTiers(); openOverlay('tiersOverlay'); }
+
+        async function renderLeaderboard() {
+            renderPrizes();
+            const list = $('tiersList'), bar = $('myRankBar');
+            list.textContent = '';
+            const loading = document.createElement('p'); loading.className = 'grid-msg'; loading.textContent = 'جاري تحميل التصنيف...';
+            list.appendChild(loading);
+            bar.textContent = '';
+            try {
+                const snap = await getDocs(query(collection(db, "leaderboard"), orderBy("points", "desc"), limit(50)));
+                list.textContent = '';
+                const prizeByRank = {};
+                (Array.isArray(settings.prizes) ? settings.prizes : []).forEach(x => { if (x && x.rank) prizeByRank[x.rank] = String(x.text || ''); });
+                const medals = ['🥇', '🥈', '🥉'];
+                let i = 0;
+                if (snap.empty) { const e = document.createElement('p'); e.className = 'grid-msg'; e.textContent = 'لسه مفيش لاعبين في التصنيف.'; list.appendChild(e); }
+                snap.forEach(d => {
+                    i++;
+                    const u = d.data();
+                    const mine = !!(currentUserData && d.id === currentUserData.uid);
+                    const row = document.createElement('div'); row.className = 'tier-row' + (mine ? ' me' : '');
+                    const rk = document.createElement('div'); rk.className = 'rk'; rk.textContent = medals[i - 1] || ('#' + i);
+                    const mid = document.createElement('div'); mid.style.flex = '1'; mid.style.minWidth = '0';
+                    const nm = document.createElement('div'); nm.className = 'nm'; nm.textContent = u.name || 'لاعب';
+                    const sub = document.createElement('div'); sub.className = 'sub'; sub.textContent = '@' + (u.username || '') + (u.playerId ? ' · ID ' + u.playerId : '');
+                    mid.append(nm, sub);
+                    row.append(rk, mid);
+                    if (mine) { const you = document.createElement('span'); you.className = 'you'; you.textContent = 'أنت'; row.appendChild(you); }
+                    if (prizeByRank[i]) { const pz = document.createElement('span'); pz.className = 'prz'; pz.textContent = '🎁 ' + prizeByRank[i]; row.appendChild(pz); }
+                    const pt = document.createElement('div'); pt.className = 'pt'; pt.textContent = (u.points || 0) + ' نقطة';
+                    row.appendChild(pt);
+                    list.appendChild(row);
+                });
+            } catch (e) {
+                console.error(e);
+                list.textContent = '';
+                const m = document.createElement('p'); m.className = 'grid-msg'; m.textContent = 'تعذر تحميل التصنيف. جرّب تاني.';
+                list.appendChild(m);
+            }
+            if (profileReady) {
+                await fetchMyRank();
+                updateStatsUI();
+                bar.textContent = myRank ? ('أنت في المركز #' + myRank + ' · ' + (stats.points || 0) + ' نقطة') : ('نقاطك: ' + (stats.points || 0));
+            } else {
+                bar.textContent = 'سجّل الدخول لمعرفة مركزك في التصنيف';
+            }
+        }
+        function openTiers() { renderLeaderboard(); openOverlay('tiersOverlay'); }
         $('tierBtn').addEventListener('click', openTiers);
         $('openTiersBtn').addEventListener('click', () => { closeOverlay('userModalOverlay'); setTimeout(openTiers, 320); });
         $('closeTiersBtn').addEventListener('click', () => closeOverlay('tiersOverlay'));
@@ -781,6 +817,7 @@
                     stats.playMinutes = (stats.playMinutes || 0) + 1;
                     stats.points = (stats.points || 0) + 10;
                     updateStatsUI();
+                    syncLeaderboard();
                 } catch (e) { console.error("tick rejected", e); }
             }, 60000);
         }
