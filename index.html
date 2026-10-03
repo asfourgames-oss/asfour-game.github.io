@@ -111,7 +111,7 @@
     <div id="store-view">
         <header>
             <a href="#" class="header-logo" id="logoLink">
-                <svg><use href="#icon-gamepad"></use></svg> Asfour
+                <svg><use href="#icon-gamepad"></use></svg> asfour games 
             </a>
             <div class="header-search">
                 <svg class="search-icon"><use href="#icon-search"></use></svg>
@@ -155,12 +155,12 @@
                 <svg><use href="#icon-back"></use></svg> خروج من اللعبة
             </button>
             <div class="player-title" id="playerTitle">اسم اللعبة</div>
-            <div style="width:20px;"></div>
+            <button class="player-back-btn" id="musicBtn" style="visibility:hidden;" aria-label="الموسيقى">🔊</button>
         </div>
         <div class="iframe-wrapper" id="gameContainer">
             <div class="loading-screen" id="loadingScreen">
                 <div class="loader-spinner"></div>
-                <div>جاري التجهيز...</div>
+                <div id="loadingText">جاري التجهيز...</div>
             </div>
             <iframe id="gameIframe" class="game-iframe" allowfullscreen
                 allow="fullscreen; autoplay; gamepad"
@@ -250,6 +250,10 @@
                 return (parsed.protocol === 'https:' || parsed.protocol === 'http:') ? parsed.href : '';
             } catch (e) { return ''; }
         }
+        function safeImg(u) {
+            if (typeof u === 'string' && /^data:image\/(png|jpeg|webp|gif);base64,[A-Za-z0-9+\/=]+$/.test(u)) return u;
+            return safeUrl(u);
+        }
 
         // ---------- الإعدادات (إعلان / صيانة) ----------
         onSnapshot(doc(db, "settings", "main"), (snap) => {
@@ -315,13 +319,13 @@
             gamesList.forEach(game => {
                 const card = document.createElement('div');
                 card.className = 'game-card';
-                card.addEventListener('click', () => openPlayer(game.id, game.title, game.url));
+                card.addEventListener('click', () => openPlayer(game));
 
                 const wrap = document.createElement('div');
                 wrap.className = 'game-icon-wrapper';
                 const img = document.createElement('img');
                 img.className = 'game-icon-img';
-                img.src = safeUrl(game.img);
+                img.src = safeImg(game.img);
                 img.alt = game.title || '';
                 img.loading = 'lazy';
                 wrap.appendChild(img);
@@ -546,35 +550,112 @@
             }
         }
 
-        async function openPlayer(id, title, url) {
-            const gameUrl = safeUrl(url);
-            if (!gameUrl) { alert("رابط اللعبة غير صالح."); return; }
+        const SANDBOX_LINK = 'allow-scripts allow-same-origin allow-pointer-lock allow-popups allow-forms';
+        const SANDBOX_ISOLATED = 'allow-scripts allow-pointer-lock allow-popups allow-forms';
+        const uploadCache = new Map();
+        let openToken = 0;
+        let musicAudio = null, musicOn = true;
+
+        // تجميع أجزاء ملف مخزّن في Firestore
+        async function loadParts(id, kind, n, type) {
+            const snaps = await Promise.all(Array.from({ length: n }, (_, i) => getDoc(doc(db, "gameFiles", id + '_' + kind + '_' + i))));
+            const b64 = snaps.map(s => { if (!s.exists()) throw new Error('missing part'); return s.data().data; }).join('');
+            const bin = atob(b64), bytes = new Uint8Array(bin.length);
+            for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+            return new Blob([bytes], { type });
+        }
+
+        async function loadUploaded(game) {
+            const key = game.id + ':' + (game.fileVer || 0);
+            if (uploadCache.has(key)) return uploadCache.get(key);
+            const [htmlBlob, musicBlob] = await Promise.all([
+                loadParts(game.id, 'html', game.htmlParts || 0, 'text/html;charset=utf-8'),
+                (game.hasMusic && game.musicParts) ? loadParts(game.id, 'music', game.musicParts, game.musicType || 'audio/mpeg') : Promise.resolve(null)
+            ]);
+            const res = { gameUrl: URL.createObjectURL(htmlBlob), musicUrl: musicBlob ? URL.createObjectURL(musicBlob) : '' };
+            uploadCache.set(key, res);
+            return res;
+        }
+
+        // ---------- الموسيقى ----------
+        function stopMusic() {
+            if (musicAudio) { musicAudio.pause(); musicAudio.removeAttribute('src'); musicAudio = null; }
+            $('musicBtn').style.visibility = 'hidden';
+        }
+        function startMusic(url) {
+            stopMusic();
+            if (!url) return;
+            musicAudio = new Audio(url);
+            musicAudio.loop = true; musicAudio.volume = 0.5;
+            const btn = $('musicBtn');
+            btn.style.visibility = 'visible';
+            btn.textContent = musicOn ? '🔊' : '🔇';
+            if (musicOn) musicAudio.play().catch(() => { musicOn = false; btn.textContent = '🔇'; });
+        }
+        $('musicBtn').addEventListener('click', () => {
+            if (!musicAudio) return;
+            musicOn = !musicOn;
+            $('musicBtn').textContent = musicOn ? '🔊' : '🔇';
+            if (musicOn) musicAudio.play().catch(() => {}); else musicAudio.pause();
+        });
+        document.addEventListener('visibilitychange', () => {
+            if (!musicAudio) return;
+            if (document.hidden) musicAudio.pause();
+            else if (musicOn) musicAudio.play().catch(() => {});
+        });
+
+        // ---------- فتح اللعبة ----------
+        async function openPlayer(game) {
+            const { id, title } = game;
+            const isUpload = game.source === 'upload';
+            const linkUrl = isUpload ? '' : safeUrl(game.url);
+            if (!isUpload && !linkUrl) { alert("رابط اللعبة غير صالح."); return; }
 
             playerOpen = true;
             currentGame = { id, title };
+            const token = ++openToken;
             document.body.classList.add('no-scroll');
             $('store-view').style.display = 'none';
             $('player-view').style.display = 'block';
             $('playerTitle').textContent = title || '';
-            $('gameIframe').src = "about:blank";
+            const frame = $('gameIframe');
+            frame.src = "about:blank";
+            frame.setAttribute('sandbox', isUpload ? SANDBOX_ISOLATED : SANDBOX_LINK);
+            $('loadingText').textContent = 'جاري التجهيز...';
             $('loadingScreen').style.display = 'flex';
-
             clearTimeout(loadTimeout);
-            loadTimeout = setTimeout(() => {
-                if (!playerOpen) return;
-                $('gameIframe').src = gameUrl;
-                $('loadingScreen').style.display = 'none';
-            }, 1000);
+            stopMusic();
 
             startTimer();
-            await recordGameOpen();
+            recordGameOpen();
+
+            if (isUpload) {
+                try {
+                    const { gameUrl, musicUrl } = await loadUploaded(game);
+                    if (token !== openToken || !playerOpen) return;
+                    frame.src = gameUrl;
+                    $('loadingScreen').style.display = 'none';
+                    startMusic(musicUrl);
+                } catch (e) {
+                    console.error(e);
+                    if (token === openToken) $('loadingText').textContent = 'تعذر تحميل اللعبة. حاول مرة تانية.';
+                }
+            } else {
+                loadTimeout = setTimeout(() => {
+                    if (!playerOpen || token !== openToken) return;
+                    frame.src = linkUrl;
+                    $('loadingScreen').style.display = 'none';
+                }, 1000);
+            }
         }
 
         function closePlayer() {
+            openToken++;
             playerOpen = false;
             currentGame = null;
             playReady = false;
             stopTimer();
+            stopMusic();
             clearTimeout(loadTimeout);
             document.body.classList.remove('no-scroll');
             $('gameIframe').src = "about:blank";
