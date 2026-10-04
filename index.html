@@ -5,6 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <meta name="theme-color" content="#3b82f6">
     <title>Asfour Games | عصفور جيمز</title>
+    <link rel="icon" type="image/png" href="favicon-64.png">
+    <link rel="apple-touch-icon" href="icon-512.png">
+    <meta name="description" content="ألعاب أونلاين مجانية، العب واجمع نقاط وادخل المسابقة واكسب جوايز.">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Asfour Games | عصفور جيمز">
+    <meta property="og:description" content="العب واجمع نقاط وادخل المسابقة واكسب جوايز!">
+    <meta property="og:image" content="https://asfour-games.online/icon-512.png">
+    <meta name="twitter:card" content="summary">
     <style>
         :root { --bg-color: #f3f4f6; --header-bg: #ffffff; --text-main: #1f2937; --text-light: #6b7280; --primary: #3b82f6; --card-radius: 16px; --header-height: 60px; --shadow-sm: 0 1px 2px 0 rgba(0,0,0,0.05); --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1); --transition: all 0.2s ease-in-out; }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; -webkit-tap-highlight-color: transparent; }
@@ -13,6 +21,7 @@
 
         header { position: fixed; top: 0; left: 0; width: 100%; height: var(--header-height); padding-top: env(safe-area-inset-top); background: var(--header-bg); display: flex; justify-content: space-between; align-items: center; padding: 0 15px; z-index: 1000; box-shadow: var(--shadow-sm); }
         .header-logo { display: flex; align-items: center; gap: 8px; font-size: 20px; font-weight: 900; color: var(--text-main); text-decoration: none; }
+        .logo-img { height: 38px; width: auto; display: block; }
         .header-logo svg { width: 28px; height: 28px; fill: var(--primary); }
         .header-search { flex-grow: 1; max-width: 400px; margin: 0 20px; position: relative; display: none; }
         @media (min-width: 600px) { .header-search { display: block; } }
@@ -172,7 +181,7 @@
     <div id="store-view">
         <header>
             <a href="#" class="header-logo" id="logoLink">
-                <svg><use href="#icon-gamepad"></use></svg> asfour games 
+                <img src="logo-header.svg" alt="Asfour Games" class="logo-img"> 
             </a>
             <div class="header-search">
                 <svg class="search-icon"><use href="#icon-search"></use></svg>
