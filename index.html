@@ -134,6 +134,13 @@
         .tier-sub { font-size: 12px; color: #92400e; }
         .btn-soft { width: 100%; background: #f3f4f6; color: var(--text-main); border: 1px solid #e5e7eb; padding: 12px; border-radius: 12px; font-weight: bold; font-size: 14px; cursor: pointer; margin-bottom: 12px; }
         .tiers-note { background: #eff6ff; color: #1e3a8a; border: 1px solid #bfdbfe; border-radius: 14px; padding: 12px 14px; font-size: 14px; line-height: 1.8; margin: 14px 0; white-space: pre-wrap; }
+        .contest-strip { display: flex; justify-content: center; align-items: center; gap: 8px; background: linear-gradient(90deg, #1e1b4b, #3730a3); color: #fff; border-radius: 12px; padding: 11px 14px; font-weight: 800; font-size: 14px; margin-bottom: 12px; cursor: pointer; font-variant-numeric: tabular-nums; text-align: center; flex-wrap: wrap; }
+        .contest-strip.frozen { background: linear-gradient(90deg, #0f4c75, #1b6ca8); }
+        .contest-banner { text-align: center; background: #eef2ff; color: #3730a3; border-radius: 12px; padding: 10px 12px; margin: 10px 0 0; font-weight: 800; font-size: 14px; line-height: 1.7; font-variant-numeric: tabular-nums; }
+        .contest-banner.frozen { background: #e0f2fe; color: #075985; }
+        .lb-tabs { display: flex; gap: 8px; margin: 12px 0; }
+        .lb-tab { flex: 1; padding: 10px; border: 1px solid #e5e7eb; background: #fff; border-radius: 10px; font-weight: 800; font-size: 13px; cursor: pointer; font-family: inherit; }
+        .lb-tab.active { background: var(--primary); color: #fff; border-color: var(--primary); }
         .prize-box { background: #f0fdf4; border: 1px solid #86efac; border-radius: 14px; padding: 12px 14px; margin-bottom: 14px; }
         .prize-box h4 { font-size: 14px; margin-bottom: 8px; color: #166534; }
         .prize-line { display: flex; gap: 8px; font-size: 14px; padding: 4px 0; line-height: 1.6; }
@@ -199,6 +206,7 @@
 
         <main>
             <div class="announcement" id="announcement"></div>
+            <div class="contest-strip" id="contestStrip">🏆 المسابقة الأسبوعية</div>
             <div class="login-banner" id="loginBanner">🔑 سجّل الدخول لمعرفة نقاطك ودخول المسابقة</div>
 
             <div class="mobile-search-bar" id="mobileSearchBar">
@@ -302,6 +310,8 @@
         <div class="modal-box">
             <button class="close-modal" id="closeTiersBtn" aria-label="إغلاق">✕</button>
             <h3 style="text-align:center; margin-bottom:4px;">🏆 لوحة التصنيف</h3>
+            <div class="contest-banner" id="contestBanner"></div>
+            <div class="lb-tabs"><button class="lb-tab active" id="lbTabCur">هذا الأسبوع</button><button class="lb-tab" id="lbTabPrev">الأسبوع الماضي</button></div>
             <div class="tiers-note" id="tiersNote" style="display:none;"></div>
             <div id="prizesBox"></div>
             <div id="tiersList"></div>
@@ -380,14 +390,25 @@
         let gamesUnsub = null, gamesTimer = null, gamesLoaded = false;
 
         function gamesErrorText(err) {
-            if (err && err.code === 'permission-denied') return 'مفيش صلاحية لعرض الألعاب. حدّث الرولز في Firebase.';
-            return 'تعذر تحميل الألعاب. تأكد من الاتصال بالإنترنت.';
+            const code = err && err.code ? ' (' + err.code + ')' : '';
+            if (err && err.code === 'permission-denied') return 'مفيش صلاحية لعرض الألعاب. حدّث الرولز في Firebase.' + code;
+            return 'تعذر الاتصال بقاعدة البيانات، تأكد من الإنترنت وحاول تاني.' + code;
         }
         function startGames() {
             stopGames();
             gamesLoaded = false;
             showGridMessage('جاري تحميل الألعاب...');
             const onData = (snapshot) => {
+                // لو الرد جاي من الكاش وفاضي يبقى لسه مفيش اتصال حقيقي بالسيرفر، مش معناه إن مفيش ألعاب
+                if (snapshot.metadata && snapshot.metadata.fromCache && snapshot.empty) {
+                    if (!gamesLoaded) {
+                        clearTimeout(gamesTimer);
+                        gamesTimer = setTimeout(() => {
+                            if (!gamesLoaded) showGridMessage(gamesErrorText({ code: 'offline' }), true);
+                        }, 7000);
+                    }
+                    return;
+                }
                 gamesLoaded = true;
                 clearTimeout(gamesTimer);
                 globalGamesDB = [];
@@ -398,17 +419,14 @@
                 });
                 applyFilters();
             };
-            gamesUnsub = onSnapshot(collection(db, "games"), onData, (err) => {
+            gamesUnsub = onSnapshot(collection(db, "games"), { includeMetadataChanges: true }, onData, (err) => {
                 console.error(err);
                 clearTimeout(gamesTimer);
                 if (!gamesLoaded) showGridMessage(gamesErrorText(err), true);
             });
-            // لو السوكيت اتأخر: جرّب جلب مباشر، ولو فشل اعرض زر إعادة المحاولة
-            gamesTimer = setTimeout(async () => {
-                if (gamesLoaded) return;
-                try { onData(await getDocs(collection(db, "games"))); }
-                catch (err) { console.error(err); if (!gamesLoaded) showGridMessage(gamesErrorText(err), true); }
-            }, 8000);
+            gamesTimer = setTimeout(() => {
+                if (!gamesLoaded) showGridMessage(gamesErrorText({ code: 'timeout' }), true);
+            }, 12000);
         }
         function stopGames() {
             if (gamesUnsub) { gamesUnsub(); gamesUnsub = null; }
@@ -594,8 +612,9 @@
                 setAuthError('');
                 renderAccountUI();
                 applySettings();
-                syncLeaderboard();
+                syncScore();
                 refreshRank();
+                renderContestClock();
                 if (playerOpen) { await recordGameOpen(); startTimer(); }
             } catch (e) {
                 console.error(e);
@@ -640,15 +659,89 @@
             throw lastErr;
         }
 
-        // ---------- مزامنة لوحة التصنيف (نسخة عامة محدودة: الاسم + اليوزر + ID + النقاط) ----------
-        async function syncLeaderboard() {
-            if (!currentUserData || !profileReady || !stats.username) return;
+        // ---------- المسابقة الأسبوعية (أسبوع 7 أيام + تجميد آخر 5 ساعات) ----------
+        const DEFAULT_ANCHOR = 1791061200000;          // بداية الأسبوع 0 (الأحد 12 منتصف الليل بتوقيت القاهرة)
+        const WEEK_MS = 7 * 24 * 3600 * 1000;
+        const FREEZE_MS = 5 * 3600 * 1000;
+        let clockOffset = 0;                        // فرق ساعة جهاز اللاعب عن ساعة السيرفر
+        const nowMs = () => Date.now() + clockOffset;
+
+        async function syncClock() {
             try {
-                await setDoc(doc(db, "leaderboard", currentUserData.uid), {
-                    name: stats.name, username: stats.username, playerId: stats.playerId, points: Number(stats.points || 0)
-                });
-            } catch (e) { console.warn("leaderboard sync", e); }
+                const r = await fetch(location.href.split('#')[0], { method: 'HEAD', cache: 'no-store' });
+                const d = r.headers.get('date');
+                if (d) { const t = new Date(d).getTime(); if (Number.isFinite(t)) clockOffset = t - Date.now(); }
+            } catch (e) { /* نكمل بساعة الجهاز */ }
         }
+        syncClock();
+        setInterval(syncClock, 10 * 60 * 1000);
+
+        function contestInfo(t = nowMs()) {
+            const anchor = Number(settings.anchor) || DEFAULT_ANCHOR;
+            const el = t - anchor;
+            if (el < 0) return { pending: true, anchor };
+            const week = Math.floor(el / WEEK_MS);
+            const end = anchor + (week + 1) * WEEK_MS;
+            const freezeAt = end - FREEZE_MS;
+            return { pending: false, anchor, week, end, freezeAt, frozen: t >= freezeAt };
+        }
+        function myWeekPoints() {
+            const c = contestInfo();
+            return (!c.pending && stats.weekId === c.week) ? Number(stats.weekPoints || 0) : 0;
+        }
+        function fmtCountdown(ms) {
+            const s = Math.max(0, Math.floor(ms / 1000));
+            const d = Math.floor(s / 86400), h = Math.floor((s % 86400) / 3600), m = Math.floor((s % 3600) / 60), sec = s % 60;
+            const pad = (n) => String(n).padStart(2, '0');
+            return (d > 0 ? d + ' يوم ' : '') + pad(h) + ':' + pad(m) + ':' + pad(sec);
+        }
+
+        // نقل نتيجة الأسبوع الحالي لاسم اللاعب (بعد تغيير الاسم أو عند الدخول)
+        async function syncScore() {
+            if (!currentUserData || !profileReady || !stats.username) return;
+            const c = contestInfo();
+            if (c.pending || stats.weekId !== c.week) return;
+            const ref = doc(db, "weeks", String(c.week), "scores", currentUserData.uid);
+            try {
+                if (c.frozen) await updateDoc(ref, { name: stats.name });
+                else await setDoc(ref, { name: stats.name, username: stats.username, playerId: stats.playerId, points: Number(stats.weekPoints || 0), weekId: c.week });
+            } catch (e) { console.warn("score sync", e); }
+        }
+        async function resyncStats() {
+            if (!currentUserData) return;
+            try {
+                const snap = await getDoc(doc(db, "users", currentUserData.uid));
+                if (snap.exists()) { stats = { ...stats, ...snap.data() }; updateStatsUI(); }
+            } catch (e) { /* ignore */ }
+        }
+
+        // العداد (شريط الصفحة الرئيسية + نافذة التصنيف)
+        let lastWeekSeen = null;
+        function contestTexts(c) {
+            if (c.pending) return { strip: '🏁 المسابقة تبدأ بعد ' + fmtCountdown(c.anchor - nowMs()), banner: '🏁 المسابقة لسه ما بدأتش · تبدأ بعد ' + fmtCountdown(c.anchor - nowMs()), frozen: false };
+            if (c.frozen) return { strip: '🧊 النتائج متجمّدة · أسبوع جديد بعد ' + fmtCountdown(c.end - nowMs()), banner: '🧊 النتائج متجمّدة، النقاط والتصنيف واقفين.\nالأسبوع الجديد يبدأ بعد ' + fmtCountdown(c.end - nowMs()), frozen: true };
+            return { strip: '⏳ تجميد النتائج بعد ' + fmtCountdown(c.freezeAt - nowMs()), banner: '⏳ تجميد النتائج بعد ' + fmtCountdown(c.freezeAt - nowMs()) + '\nالأسبوع بينتهي بعد ' + fmtCountdown(c.end - nowMs()), frozen: false };
+        }
+        function renderContestClock() {
+            const c = contestInfo();
+            const t = contestTexts(c);
+            const strip = $('contestStrip');
+            strip.textContent = '🏆 المسابقة الأسبوعية · ' + t.strip;
+            strip.classList.toggle('frozen', t.frozen);
+            const ban = $('contestBanner');
+            ban.style.whiteSpace = 'pre-line';
+            ban.textContent = t.banner;
+            ban.classList.toggle('frozen', t.frozen);
+            if (!c.pending && c.week !== lastWeekSeen) {
+                const first = lastWeekSeen === null;
+                lastWeekSeen = c.week;
+                myRank = null;
+                if (profileReady) { updateStatsUI(); refreshRank(); }
+                if (!first && $('tiersOverlay').classList.contains('active')) renderLeaderboard();
+            }
+        }
+        $('contestStrip').addEventListener('click', () => openTiers());
+        setInterval(renderContestClock, 1000);
 
         // ---------- تعديل الاسم فقط ----------
         $('editProfileBtn').addEventListener('click', () => {
@@ -670,7 +763,7 @@
                 stats.name = name; stats.displayName = name;
                 $('editBox').style.display = 'none';
                 renderAccountUI();
-                syncLeaderboard();
+                syncScore();
             } catch (e) {
                 console.error(e);
                 err('تعذر الحفظ. جرّب تاني.');
@@ -678,13 +771,15 @@
             btn.disabled = false; btn.textContent = 'حفظ';
         });
 
-        // ---------- مركز اللاعب ----------
+        // ---------- مركز اللاعب (الأسبوع الحالي) ----------
         let myRank = null;
         async function fetchMyRank() {
-            if (!profileReady) { myRank = null; return null; }
+            const c = contestInfo();
+            const pts = myWeekPoints();
+            if (!profileReady || c.pending || pts <= 0) { myRank = null; return null; }
             try {
-                const c = await getCountFromServer(query(collection(db, "leaderboard"), where("points", ">", Number(stats.points || 0))));
-                myRank = c.data().count + 1;
+                const cnt = await getCountFromServer(query(collection(db, "weeks", String(c.week), "scores"), where("points", ">", pts)));
+                myRank = cnt.data().count + 1;
             } catch (e) { console.warn("rank", e); }
             return myRank;
         }
@@ -704,8 +799,8 @@
             $('stat-mins').textContent = stats.playMinutes || 0;
             $('stat-points').textContent = stats.points || 0;
             $('banNote').textContent = stats.banned ? 'حسابك موقوف عن جمع النقاط.' : '';
-            $('tier-name').textContent = myRank ? ('المركز #' + myRank) : '—';
-            $('tier-sub').textContent = 'مركزك في لوحة التصنيف · ' + (stats.points || 0) + ' نقطة';
+            $('tier-name').textContent = myRank ? ('المركز #' + myRank) : 'لسه ماكسبتش نقاط الأسبوع ده';
+            $('tier-sub').textContent = 'نقاط الأسبوع: ' + myWeekPoints() + ' · مجموع نقاطك: ' + (stats.points || 0);
             $('tierChipText').textContent = myRank ? ('#' + myRank) : 'التصنيف';
         }
 
@@ -750,24 +845,32 @@
             box.appendChild(wrap);
         }
 
+        let lbTab = 'current';
         async function renderLeaderboard() {
             renderPrizes();
+            renderContestClock();
+            $('lbTabCur').classList.toggle('active', lbTab === 'current');
+            $('lbTabPrev').classList.toggle('active', lbTab === 'prev');
             const list = $('tiersList'), bar = $('myRankBar');
-            list.textContent = '';
-            const loading = document.createElement('p'); loading.className = 'grid-msg'; loading.textContent = 'جاري تحميل التصنيف...';
-            list.appendChild(loading);
+            const msg = (t) => { list.textContent = ''; const m = document.createElement('p'); m.className = 'grid-msg'; m.textContent = t; list.appendChild(m); };
             bar.textContent = '';
+            const c = contestInfo();
+            if (c.pending) { msg('المسابقة لسه ما بدأتش.'); return; }
+            const week = lbTab === 'prev' ? c.week - 1 : c.week;
+            if (week < 0) { msg('مفيش أسبوع سابق لسه.'); return; }
+            msg('جاري تحميل التصنيف...');
+            const col = collection(db, "weeks", String(week), "scores");
             try {
-                const snap = await getDocs(query(collection(db, "leaderboard"), orderBy("points", "desc"), limit(50)));
+                const snap = await getDocs(query(col, orderBy("points", "desc"), limit(50)));
                 list.textContent = '';
                 const prizeByRank = {};
                 (Array.isArray(settings.prizes) ? settings.prizes : []).forEach(x => { if (x && x.rank) prizeByRank[x.rank] = String(x.text || ''); });
                 const medals = ['🥇', '🥈', '🥉'];
                 let i = 0;
-                if (snap.empty) { const e = document.createElement('p'); e.className = 'grid-msg'; e.textContent = 'لسه مفيش لاعبين في التصنيف.'; list.appendChild(e); }
                 snap.forEach(d => {
-                    i++;
                     const u = d.data();
+                    if (!(u.points > 0)) return;
+                    i++;
                     const mine = !!(currentUserData && d.id === currentUserData.uid);
                     const row = document.createElement('div'); row.className = 'tier-row' + (mine ? ' me' : '');
                     const rk = document.createElement('div'); rk.className = 'rk'; rk.textContent = medals[i - 1] || ('#' + i);
@@ -782,21 +885,29 @@
                     row.appendChild(pt);
                     list.appendChild(row);
                 });
+                if (i === 0) msg(week === c.week ? 'لسه مفيش حد كسب نقاط الأسبوع ده. كن أول واحد!' : 'مفيش نتايج للأسبوع الماضي.');
             } catch (e) {
                 console.error(e);
-                list.textContent = '';
-                const m = document.createElement('p'); m.className = 'grid-msg'; m.textContent = 'تعذر تحميل التصنيف. جرّب تاني.';
-                list.appendChild(m);
+                msg('تعذر تحميل التصنيف. جرّب تاني.');
             }
-            if (profileReady) {
-                await fetchMyRank();
-                updateStatsUI();
-                bar.textContent = myRank ? ('أنت في المركز #' + myRank + ' · ' + (stats.points || 0) + ' نقطة') : ('نقاطك: ' + (stats.points || 0));
-            } else {
-                bar.textContent = 'سجّل الدخول لمعرفة مركزك في التصنيف';
-            }
+            if (!profileReady) { bar.textContent = 'سجّل الدخول لمعرفة مركزك في التصنيف'; return; }
+            try {
+                let pts = 0;
+                if (week === c.week) pts = myWeekPoints();
+                else { const mine = await getDoc(doc(db, "weeks", String(week), "scores", currentUserData.uid)); pts = mine.exists() ? Number(mine.data().points || 0) : 0; }
+                if (pts > 0) {
+                    const cnt = await getCountFromServer(query(col, where("points", ">", pts)));
+                    const rank = cnt.data().count + 1;
+                    if (week === c.week) { myRank = rank; updateStatsUI(); }
+                    bar.textContent = 'أنت في المركز #' + rank + ' · ' + pts + ' نقطة' + ((week !== c.week || c.frozen) ? ' (نهائي)' : '');
+                } else {
+                    bar.textContent = week === c.week ? 'العب عشان تدخل التصنيف · نقاطك الأسبوع ده: 0' : 'ماكنتش في تصنيف الأسبوع الماضي';
+                }
+            } catch (e) { console.warn(e); }
         }
-        function openTiers() { renderLeaderboard(); openOverlay('tiersOverlay'); }
+        $('lbTabCur').addEventListener('click', () => { lbTab = 'current'; renderLeaderboard(); });
+        $('lbTabPrev').addEventListener('click', () => { lbTab = 'prev'; renderLeaderboard(); });
+        function openTiers() { lbTab = 'current'; renderLeaderboard(); openOverlay('tiersOverlay'); }
         $('tierBtn').addEventListener('click', openTiers);
         $('openTiersBtn').addEventListener('click', () => { closeOverlay('userModalOverlay'); setTimeout(openTiers, 320); });
         $('closeTiersBtn').addEventListener('click', () => closeOverlay('tiersOverlay'));
@@ -809,12 +920,21 @@
             const uid = currentUserData.uid;
             playInterval = setInterval(async () => {
                 if (document.hidden) return;
+                const c = contestInfo();
+                if (c.pending || c.frozen) return;          // فترة التجميد: مفيش نقاط ولا تسجيل
+                const wk = c.week;
+                const nw = (stats.weekId === wk ? Number(stats.weekPoints || 0) : 0) + 10;
                 try {
                     const batch = writeBatch(db);
                     batch.update(doc(db, "users", uid), {
                         playMinutes: increment(1),
                         points: increment(10),
+                        weekId: wk,
+                        weekPoints: nw,
                         lastTick: serverTimestamp()
+                    });
+                    batch.set(doc(db, "weeks", String(wk), "scores", uid), {
+                        name: stats.name, username: stats.username, playerId: stats.playerId, points: nw, weekId: wk
                     });
                     if (playReady && currentGame) {
                         batch.update(doc(db, "users", uid, "plays", currentGame.id), {
@@ -825,9 +945,10 @@
                     await batch.commit();
                     stats.playMinutes = (stats.playMinutes || 0) + 1;
                     stats.points = (stats.points || 0) + 10;
+                    stats.weekId = wk;
+                    stats.weekPoints = nw;
                     updateStatsUI();
-                    syncLeaderboard();
-                } catch (e) { console.error("tick rejected", e); }
+                } catch (e) { console.error("tick rejected", e); resyncStats(); }
             }, 60000);
         }
 
